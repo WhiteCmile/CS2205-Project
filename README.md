@@ -62,8 +62,7 @@ C :=    VAR_DEFINITION; C |
         do { C } while (E) |
         V (E, E, ..., E) | V ()
         local V in { C } |
-        continue | break |
-        return | return V
+        continue | break | return
 
 GLOB_ITEM :=    VAR_DEFINITION |
                 TYPE FUNC_NAME (VAR_DEFINITION, VAR_DEFINITION, ..., VAR_DEFINITION) { C } |
