@@ -73,5 +73,7 @@ P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 
 # 前端实现
 
+TEST
+
 # 解释器
 
