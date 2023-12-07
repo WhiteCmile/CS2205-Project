@@ -1,0 +1,7 @@
+build/*.o
+
+build/parser.*
+
+build/lexer.*
+
+bin
