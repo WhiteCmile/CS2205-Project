@@ -35,13 +35,14 @@ GLOB_ITEM :=    var V |
 P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 ```
 
-在加入基本类型系统与函数指针后， 语法变为：
+在加入基本类型系统与函数指针以及整数及字符串的输入输出后， 语法变为：
 
 ```
 E :=    N | V | -E | E + E | E - E | E * E | E / E | E % E |
         E < E | E <= E | E == E | E != E | E >= E | E > E | 
         E && E | E || E | !E |
         * E | & E |
+        read_int () | 
         V (E, E, ..., E) | V ()
 
 STAR_LIST :=    * | STAR_LIST *
@@ -50,10 +51,10 @@ TYPE := int | int STAR_LIST |
         void |
         TYPE (STAR_LIST) () | TYPE (STAR_LIST) (TYPE, TYPE, ..., TYPE)
 
-VAR_DEFINITION :=   TYPE V |
-                    TYPE (STAR_LIST V) () | TYPE (STAR_LIST V) (TYPE, TYPE, ..., TYPE)
+VAR_DECL :=     TYPE V |
+                TYPE (STAR_LIST V) () | TYPE (STAR_LIST V) (TYPE, TYPE, ..., TYPE)
 
-C :=    VAR_DEFINITION; C |
+C :=    VAR_DECL |
         E = E |
         C; C |
         if (E) then { C } else { C } |
@@ -61,19 +62,20 @@ C :=    VAR_DEFINITION; C |
         for { C } ( E ) { C } { C } |
         do { C } while (E) |
         V (E, E, ..., E) | V ()
-        local V in { C } |
+        write_char ( E ) | write_int ( E )
         continue | break | return
 
-GLOB_ITEM :=    VAR_DEFINITION |
-                TYPE FUNC_NAME (VAR_DEFINITION, VAR_DEFINITION, ..., VAR_DEFINITION) { C } |
-                TYPE PROC_NAME (VAR_DEFINITION, VAR_DEFINITION, ..., VAR_DEFINITION) { C }
+GLOB_ITEM :=    VAR_DECL |
+                TYPE FUNC_NAME (VAR_DECL, VAR_DECL, ..., VAR_DECL) { C } |
+                TYPE FUNC_NAME () { C } |
+                TYPE PROC_NAME (VAR_DECL, VAR_DECL, ..., VAR_DECL) { C } |
+                TYPE PROC_NAME () { C }
 
 P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 ```
 
 # 前端实现
 
-TEST
 
 # 解释器
 
