@@ -67,9 +67,7 @@ C :=    VAR_DECL |
 
 GLOB_ITEM :=    VAR_DECL |
                 TYPE FUNC_NAME (VAR_DECL, VAR_DECL, ..., VAR_DECL) { C } |
-                TYPE FUNC_NAME () { C } |
-                TYPE PROC_NAME (VAR_DECL, VAR_DECL, ..., VAR_DECL) { C } |
-                TYPE PROC_NAME () { C }
+                TYPE FUNC_NAME () { C }
 
 P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 ```
