@@ -402,7 +402,7 @@ void PrintType(Type * t)
         {
             PrintType(t -> data.FUNCPTR.ret_type);
             printf("(");
-            for (int i = 0; i <= n; i++)
+            for (int i = 1; i <= n; i++)
                 printf("*");
             printf(")(");
             PrintTypeList(t -> data.FUNCPTR.list);

@@ -1,7 +1,9 @@
 %{
+#include <exception>
 #include <cstdio>
 #include "lang.hpp"
 #include "lexer.hpp"
+using std :: exception;
 void yyerror(char * str);
 int yylex();
 GlobItemList * root;
@@ -97,21 +99,25 @@ NT_TYPE:
     }
     |   NT_TYPE TM_LEFT_PAREN NT_STAR_LST TM_RIGHT_PAREN TM_LEFT_PAREN TM_RIGHT_PAREN
     {
-        $$ = (TTypeFuncPtr(($3) - 1, $1, TTypeNil()));
+        $$ = (TTypeFuncPtr($3, $1, TTypeNil()));
     }
     |   NT_TYPE TM_LEFT_PAREN NT_STAR_LST TM_RIGHT_PAREN TM_LEFT_PAREN NT_TYPE_LST TM_RIGHT_PAREN
     {
-        $$ = (TTypeFuncPtr(($3) - 1, $1, $6));
+        $$ = (TTypeFuncPtr($3, $1, $6));
     }
 ;
 
 NT_TYPE_LST:
     NT_TYPE
     {
+        if (($1) -> type == T_VOID)
+            throw exception();
         $$ = (TTypeListCons($1, TTypeNil()));
     }
     |   NT_TYPE TM_COMMA NT_TYPE_LST
     {
+        if (($1) -> type == T_VOID)
+            throw exception();
         $$ = (TTypeListCons($1, $3));
     }
 ;
@@ -130,15 +136,17 @@ NT_STAR_LST:
 NT_VAR_DECL:
     NT_TYPE TM_IDENT
     {
+        if (($1) -> type == T_VOID)
+            throw exception();
         $$ = (TVarDecl($1, $2));
     }
     |   NT_TYPE TM_LEFT_PAREN NT_STAR_LST TM_IDENT TM_RIGHT_PAREN TM_LEFT_PAREN TM_RIGHT_PAREN
     {
-        $$ = (TVarDecl(TTypeFuncPtr(($3) - 1, $1, TTypeNil()), $4));
+        $$ = (TVarDecl(TTypeFuncPtr($3, $1, TTypeNil()), $4));
     }
     |   NT_TYPE TM_LEFT_PAREN NT_STAR_LST TM_IDENT TM_RIGHT_PAREN TM_LEFT_PAREN NT_TYPE_LST TM_RIGHT_PAREN
     {
-        $$ = (TVarDecl(TTypeFuncPtr(($3) - 1, $1, $7), $4));
+        $$ = (TVarDecl(TTypeFuncPtr($3, $1, $7), $4));
     }
 ;
 
