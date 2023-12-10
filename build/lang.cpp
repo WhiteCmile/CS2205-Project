@@ -225,6 +225,20 @@ Cmd * TReturn() {
     return res;
 }
 
+Cmd * TNewFrame() 
+{
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_NEW_FRAME;
+    return res;
+}
+
+Cmd * TDelFrame()
+{
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_DEL_FRAME;
+    return res;
+}
+
 Var * TVarDecl(Type * type, char * name)
 {
     Var * res = NewPtr<Var> ();

@@ -191,19 +191,19 @@ NT_CMD:
     }
     |   TM_IF TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
     {
-        $$ = (TIf($3, $7, $11));
+        $$ = (TSeq(TNewFrame(), TSeq(TIf($3, $7, $11), TDelFrame())));
     } 
     |   TM_WHILE TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
     {
-        $$ = (TWhile($3, $7));
+        $$ = (TSeq(TNewFrame(), TSeq(TWhile($3, $7), TDelFrame())));
     }
     |   TM_FOR TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
     {
-        $$ = (TFor($3, $6, $9, $12));
+        $$ = (TSeq(TNewFrame(), TSeq(TFor($3, $6, $9, TSeq(TNewFrame(), TSeq($12, TDelFrame()))), TDelFrame())));
     }
     |   TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_WHILE TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
     {
-        $$ = (TDoWhile($3, $7));
+        $$ = (TSeq(TNewFrame(), TSeq(TDoWhile($3, $7), TDelFrame())));
     }
     |   NT_EXPR TM_LEFT_PAREN TM_RIGHT_PAREN
     {

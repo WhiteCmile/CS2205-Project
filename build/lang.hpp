@@ -22,12 +22,12 @@ enum BinOpType {
 };
 
 enum UnOpType {
-    T_UMINUS, // -
+    T_UMINUS = 100, // -
     T_NOT // !
 };
 
 enum ExprType {
-    T_CONST,
+    T_CONST = 200,
     T_VAR,
     T_BINOP,
     T_UNOP,
@@ -38,7 +38,9 @@ enum ExprType {
 };
 
 enum CmdType {
-    T_DECL,
+    T_DECL = 300,
+    T_NEW_FRAME,
+    T_DEL_FRAME,
     T_ASGN,
     T_SEQ,
     T_IF,
@@ -54,13 +56,13 @@ enum CmdType {
 };
 
 enum VarType {
-    T_FUNCPTR,
+    T_FUNCPTR = 400,
     T_VOID,
     T_INT
 };
 
 enum GlobItemType {
-    T_FUNC_DEF,
+    T_FUNC_DEF = 500,
     T_GLOB_VAR
 };
 
@@ -102,6 +104,15 @@ struct Type {
 struct TypeList {
     Type * data;
     TypeList * next;
+    ~TypeList() 
+    {
+        if (next)
+        {
+            next -> ~TypeList();
+            delete next;
+        }
+        delete data;
+    }
 };
 
 struct Var {
@@ -122,6 +133,8 @@ struct Cmd {
         struct { Expr * func; ExprList * args; } PROC;
         struct { Expr * expr; } WC;
         struct { Expr * expr; } WI;
+        struct { void * none; } NEW_FRAME;
+        struct { void * none; } DEL_FRAME;
         struct { void * none; } BREAK;
         struct { void * none; } CONTINUE;
         struct { void * none; } RETURN;
@@ -174,6 +187,8 @@ Cmd * TProc(Expr * expr, ExprList * args);
 Cmd * TLocalDecl(char * name, Cmd * body);
 Cmd * TWriteChar(Expr * expr);
 Cmd * TWriteInt(Expr * expr);
+Cmd * TNewFrame();
+Cmd * TDelFrame();
 Cmd * TBreak();
 Cmd * TContinue();
 Cmd * TReturn();
