@@ -16,7 +16,8 @@
 #ifndef SYMBOL_TABLE_HPP
 #define SYMBOL_TABLE_HPP
 
-#include <basictype.hpp>
+#include "basictype.hpp"
+#include "value.hpp"
 #include <unordered_map>
 #include <vector>
 #include <stack>
@@ -32,10 +33,9 @@ class SymbolTable {
 private:
     struct Item {
         Name name;
-        BasicTypePtr type;
+        ValuePtr value_ptr;
         Address address;
         bool initialized;
-        long long value;
         Time time;
     };
 
@@ -55,12 +55,13 @@ private:
     int IsLegalVariable(Name name);
 
 public:
+    SymbolTable();
     void NewFrame(FrameType frametype);
     void DeleteFrame();
-    void InsertItem(Name name, BasicTypePtr type, bool initialized, long long value = 0);
-    void ModifyByName(Name name, long long value);
-    void ModifyByAddress(Address address, long long value);
-    long long GetValue(Name name);
+    void InsertItem(Name name, ValuePtr type, bool initialized);
+    void ModifyByName(Name name, ValuePtr value);
+    void ModifyByAddress(Address address, ValuePtr value);
+    ValuePtr GetValue(Name name);
     Address GetAddress(Name name);
     BasicTypePtr GetType(Name name);
 };
@@ -68,7 +69,7 @@ public:
 /**
  * Initialization
  */
-SymbolTable::SymbolTable() {
+SymbolTable :: SymbolTable() {
     current_frame_time = time;
     frame_time_list.push(time);
     current_funcframe_time = time;
@@ -145,7 +146,7 @@ void SymbolTable::DeleteFrame() {
  * Creates a new variable and update the lookup tables.
  * If a variable with the same name is already created in the frame, throw an exception.
  */
-void SymbolTable::InsertItem(Name name, BasicTypePtr type, bool initialized, long long value = 0) {
+void SymbolTable::InsertItem(Name name, ValuePtr value_ptr, bool initialized) {
     TimeElapse();
     if (name_table.find(name) != name_table.end()) { //the variable already exists
         if (name_table[name].back() > current_frame_time) throw std::exception();
@@ -157,10 +158,10 @@ void SymbolTable::InsertItem(Name name, BasicTypePtr type, bool initialized, lon
         name_table[name] = temp;
     }
     // modify info table
-    if (initialized == true) info_table.push_back({name, type, type -> GetAddress(), true, value, time});
-    else info_table.push_back({name, type, type -> GetAddress(), false, value, time});
+    if (initialized == true) info_table.push_back((Item) {name, value_ptr, value_ptr.GetAddress(), true, time});
+    else info_table.push_back((Item) {name, value_ptr, value_ptr.GetAddress(), false, time});
     // modify address table
-    address_table[type -> GetAddress()] = info_table.size() - 1;
+    address_table[value_ptr.GetAddress()] = info_table.size() - 1;
     // modify time_index table
     time_index_table[time] = info_table.size() - 1;
     return;
@@ -171,12 +172,12 @@ void SymbolTable::InsertItem(Name name, BasicTypePtr type, bool initialized, lon
  * 
  * Alert: only variables in the frame and global varialbles are allowed.
  */
-void SymbolTable::ModifyByName(Name name, long long value) {
+void SymbolTable::ModifyByName(Name name, ValuePtr value_ptr) {
     TimeElapse();
     int index = IsLegalVariable(name);
     if (index >= 0) {
         info_table[index].initialized = true;
-        info_table[index].value = value;
+        info_table[index].value_ptr = value_ptr;
     }
     else throw std::exception();
     return;
@@ -188,10 +189,10 @@ void SymbolTable::ModifyByName(Name name, long long value) {
  * 
  * Allowed whenever there exists a variable at the address, regardless of frame.
  */
-void SymbolTable::ModifyByAddress(Address address, long long value) {
+void SymbolTable::ModifyByAddress(Address address, ValuePtr value_ptr) {
     TimeElapse();
     if (address_table.find(address) != address_table.end()) {
-        info_table[address_table[address]].value = value;
+        info_table[address_table[address]].value_ptr = value_ptr;
     } else throw std::exception();
     return;
 }
@@ -201,15 +202,14 @@ void SymbolTable::ModifyByAddress(Address address, long long value) {
  * 
  * If the variable is uninitialized, throw an exception.
  */
-long long SymbolTable::GetValue(Name name) {
+ValuePtr SymbolTable::GetValue(Name name) {
     TimeElapse();
     int index = IsLegalVariable(name);
     if (index >= 0) {
         if (info_table[index].initialized == false) throw std::exception();
-        else return info_table[index].value;
+        else return info_table[index].value_ptr;
     }
-    else throw std::exception();
-    return -1;
+    throw std::exception();
 }
 
 /**
@@ -219,8 +219,7 @@ Address SymbolTable::GetAddress(Name name) {
     TimeElapse();
     int index = IsLegalVariable(name);
     if (index >= 0) return info_table[index].address;
-    else throw std::exception();
-    return 0;
+    throw std::exception();
 }
 
 /**
@@ -229,9 +228,8 @@ Address SymbolTable::GetAddress(Name name) {
 BasicTypePtr SymbolTable::GetType(Name name) {
     TimeElapse();
     int index = IsLegalVariable(name);
-    if (index >= 0) return info_table[index].type;
-    else throw std::exception();
-    return nullptr;
+    if (index >= 0) return info_table[index].value_ptr -> GetType();
+    throw std::exception();
 }
 
 #endif
