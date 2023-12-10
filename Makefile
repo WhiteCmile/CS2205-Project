@@ -31,16 +31,25 @@ CXXFLAGS := -g -std=c++11
 ./bin/front: ./build/front.o ./build/parser.o ./build/lexer.o ./build/lib.o ./build/lang.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-# interpreter.o: interpreter.c lang.h lib.h
-# 	gcc -c -g interpreter.c
+./build/value.o: ./build/value.cpp ./build/value.hpp ./build/basictype.hpp ./build/lang.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# main.o: main.c lexer.h parser.h lang.h
-# 	gcc -c -g main.c
+./build/basictype.o: ./build/basictype.cpp ./build/basictype.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# main: lang.o parser.o lexer.o interpreter.o lib.o main.o
-# 	gcc -g lang.o parser.o lexer.o interpreter.o lib.o main.o -o main
+./build/symboltable.o: ./build/symboltable.cpp ./build/value.hpp ./build/basictype.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-all: main
+./build/interpreter.o: ./build/interpreter.cpp 
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+./build/main.o: ./build/main.cpp ./build/lexer.hpp ./build/parser.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+./bin/main: ./build/main.o ./build/lib.o ./build/lexer.o ./build/parser.o ./build/lang.o ./build/interpreter.o ./build/value.o ./build/basictype.o ./build/symboltable.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+all: ./bin/main
 
 test: ./bin/front
 
