@@ -64,7 +64,7 @@ public:
     BasicTypePtr MakePointer() override;
 };
 
-class TypeVoid : BasicType
+class TypeVoid : public BasicType
 {
 public:
     //constructor
@@ -73,7 +73,7 @@ public:
     bool operator == (const BasicType &op) override; // TypeVoid == TypeVoid
 };
 
-class TypeFuncPtr : BasicType
+class TypeFuncPtr : public BasicType
 {
 private:
 /*

@@ -74,7 +74,7 @@ public:
     virtual ValuePtr & operator * () = 0; // * E
 };
 
-class Int : BasicValue
+class Int : public BasicValue
 {
 private:
 /*
@@ -97,7 +97,6 @@ public:
     bool operator < (const BasicValue &op) override; // a < b
     bool operator <= (const BasicValue &op) override; // a <= b
     bool operator == (const BasicValue &op) override; // a == b
-    bool operator != (const BasicValue &op) override; // a != b
     bool operator >= (const BasicValue &op) override; // a >= b
     bool operator > (const BasicValue &op) override; // a > b
 
@@ -107,7 +106,7 @@ public:
     ValuePtr & operator * () override;
 };
 
-class FuncPtr : BasicValue
+class FuncPtr : public BasicValue
 {
 private:
 /*

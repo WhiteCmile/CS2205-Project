@@ -42,9 +42,12 @@ ValuePtr BasicValue :: operator % (const BasicValue &op) { throw exception(); }
 
 bool BasicValue :: operator < (const BasicValue &op) { throw exception(); }
 bool BasicValue :: operator <= (const BasicValue &op) { throw exception(); }
+bool BasicValue :: operator == (const BasicValue &op) { throw exception(); }
 bool BasicValue :: operator != (const BasicValue &op) { return !(*this == op); }
 bool BasicValue :: operator >= (const BasicValue &op) { throw exception(); }
 bool BasicValue :: operator > (const BasicValue &op) { throw exception(); }
+
+BasicValue :: operator bool() { throw exception(); }
 
 bool BasicValue :: operator ! () { return !(*this); }
 

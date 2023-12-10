@@ -12,8 +12,6 @@ BasicType * BasicTypePtr :: operator -> () const { return ptr.get(); }
 
 BasicType & BasicTypePtr :: operator * () const { return *ptr; }
 
-BasicType * BasicTypePtr :: get() const { return ptr.get(); }
-
 BasicTypePtr :: operator bool() { return ptr.get(); }
 
 // BasicType
@@ -22,11 +20,15 @@ BasicType :: BasicType(TypeName type_name, int num) : type_name(type_name), ptr_
 
 bool BasicType :: operator != (const BasicType &op) { return !(*this == op); }
 
+bool BasicType :: operator == (const BasicType &op) { throw exception(); }
+
 TypeName BasicType :: GetTypeName() const { return type_name; }
 
 int BasicType :: GetPtrNum() const { return ptr_num; }
 
 int BasicType :: Dim() const { return ptr_num; }
+
+BasicTypePtr BasicType :: MakePointer() { throw exception(); }
 
 // TypeInt
 
@@ -62,7 +64,7 @@ TypeFuncPtr :: TypeFuncPtr(int num, BasicTypePtr ret_type, const vector<BasicTyp
     : BasicType(FUNCPTR, num), ret_type(ret_type), arg_types(vec) {}
 
 BasicTypePtr TypeFuncPtr :: GetRetType() { return ret_type; }
-std :: vector<BasicTypePtr>& GetArgTypes() { return arg_types; }
+vector<BasicTypePtr>& TypeFuncPtr :: GetArgTypes() { return arg_types; }
 
 bool TypeFuncPtr :: operator == (const BasicType &op)
 {
