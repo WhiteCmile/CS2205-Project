@@ -9,15 +9,12 @@
 #include <memory>
 #include "lang.hpp"
 #include "basictype.hpp"
+#include "value.hpp"
 using std :: shared_ptr;
 
 class BasicValue;
 
 class ValuePtr;
-
-class Int :: BasicValue;
-
-class FuncPtr :: BasicValue;
 
 class ValuePtr
 {
@@ -33,14 +30,15 @@ public:
     BasicValue * operator -> (); // operator -> 
     BasicValue & operator * (); // operator *
     operator bool();
-    long long get();
+    unsigned long long GetAddress() const;
+    bool operator == (const ValuePtr &);
 };
 
 class BasicValue
 {
 protected:
 /*
-    @attr type(class BasicTypePtr): type of this value
+    @attr type(class BasicTypePtr): a pointer to the type of this value
     @attr val(class ValuePtr): if this object is a pointer, then val stores which object 
         it points to; otherwise it is null
 */
@@ -49,6 +47,9 @@ protected:
 public:
     // constructor
     BasicValue(BasicTypePtr type, ValuePtr val); 
+
+    BasicTypePtr GetType() const;
+    ValuePtr GetVal() const;
 
     virtual ValuePtr operator + (const BasicValue &op); // E + E
     virtual ValuePtr operator - (const BasicValue &op); // E - E
@@ -64,7 +65,7 @@ public:
     virtual bool operator >= (const BasicValue &op); // E >= E
     virtual bool operator > (const BasicValue &op); // E > E
 
-    virtual operator bool() = 0;
+    virtual operator bool();
     virtual bool operator ! (); // !E
     virtual bool operator && (const BasicValue &op); // E && E
     virtual bool operator || (const BasicValue &op); // E || E
@@ -73,7 +74,7 @@ public:
     virtual ValuePtr & operator * () = 0; // * E
 };
 
-class Int :: BasicValue
+class Int : BasicValue
 {
 private:
 /*
@@ -82,21 +83,23 @@ private:
     long long n;
 public:
     // constructor
-    Int(BasicType type, ValuePtr ptr, long long m);
+    Int(BasicTypePtr type, ValuePtr ptr, long long m);
 
-    ValuePtr operator + (const Int &op) override; // a + b
-    ValuePtr operator - (const Int &op) override; // a - b
+    long long GetNum();
+
+    ValuePtr operator + (const BasicValue &op) override; // a + b
+    ValuePtr operator - (const BasicValue &op) override; // a - b
     ValuePtr operator - () override; // -b
-    ValuePtr operator * (const Int &op) override; // a * b
-    ValuePtr operator / (const Int &op) override; // a / b
-    ValuePtr operator % (const Int &op) override; // a % b
+    ValuePtr operator * (const BasicValue &op) override; // a * b
+    ValuePtr operator / (const BasicValue &op) override; // a / b
+    ValuePtr operator % (const BasicValue &op) override; // a % b
 
-    bool operator < (const Int &op) override; // a < b
-    bool operator <= (const Int &op) override; // a <= b
-    bool operator == (const Int &op) override; // a == b
-    bool operator != (const Int &op) override; // a != b
-    bool operator >= (const Int &op) override; // a >= b
-    bool operator > (const Int &op) override; // a > b
+    bool operator < (const BasicValue &op) override; // a < b
+    bool operator <= (const BasicValue &op) override; // a <= b
+    bool operator == (const BasicValue &op) override; // a == b
+    bool operator != (const BasicValue &op) override; // a != b
+    bool operator >= (const BasicValue &op) override; // a >= b
+    bool operator > (const BasicValue &op) override; // a > b
 
     operator bool() override;
 
@@ -104,16 +107,22 @@ public:
     ValuePtr & operator * () override;
 };
 
-class FuncPtr :: BasicValue
+class FuncPtr : BasicValue
 {
+private:
+/*
+    @attr func_name(pointer of GlobItem): if dimension of an FuncPtr is 0, then 
+    func_name stores the function in AST
+*/
+    GlobItem * func;
 public:
     // constructor
-    FuncPtr(BasicType type, ValuePtr ptr);
+    FuncPtr(BasicTypePtr type, ValuePtr ptr, GlobItem * name);
 
+    GlobItem * GetFunc();
     operator bool() override;
 
-    bool operator == (const FuncPtr &op) override; // FuncPtr == FuncPtr
-    bool operator != (const FuncPtr &op) override; // FuncPtr == FuncPtr
+    bool operator == (const BasicValue &op) override; // FuncPtr == FuncPtr
 
     ValuePtr operator & () override; // & E
     ValuePtr & operator * () override; // * E

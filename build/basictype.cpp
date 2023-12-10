@@ -3,64 +3,82 @@
 #include "lang.hpp"
 #include "basictype.hpp"
 using std :: vector;
+using std :: exception;
 
-// TypePtr
-TypePtr :: TypePtr(BasicType * ptr) : ptr(ptr) {}
+// BasicTypePtr
+BasicTypePtr :: BasicTypePtr(BasicType * ptr) : ptr(ptr) {}
 
-TypePtr :: BasicType * operator -> () { return ptr.get(); }
+BasicType * BasicTypePtr :: operator -> () const { return ptr.get(); }
 
-TypePtr :: BasicType & operator * () { return *ptr; }
+BasicType & BasicTypePtr :: operator * () const { return *ptr; }
 
-TypePtr :: operator bool() { return ptr.get(); }
+BasicType * BasicTypePtr :: get() const { return ptr.get(); }
+
+BasicTypePtr :: operator bool() { return ptr.get(); }
 
 // BasicType
 
 BasicType :: BasicType(TypeName type_name, int num) : type_name(type_name), ptr_num(num) {}
 
-BasicType :: bool operator == (const BasicType &op) { return 0; }
+bool BasicType :: operator != (const BasicType &op) { return !(*this == op); }
 
-BasicType :: bool operator != (const BasicType &op) { return !(*this == op); }
+TypeName BasicType :: GetTypeName() const { return type_name; }
+
+int BasicType :: GetPtrNum() const { return ptr_num; }
+
+int BasicType :: Dim() const { return ptr_num; }
 
 // TypeInt
 
-TypeInt :: TypeInt(int num) : type_name(INT), ptr_num(num) {}
+TypeInt :: TypeInt(int num) : BasicType(INT, num) {}
 
-bool IsInt() { return !ptr_num; }
-
-TypeInt :: bool operator == (const TypeInt &op) override
+bool TypeInt :: operator == (const BasicType &op)
 {
-    return ptr_num == op.ptr_num;
+    if (type_name != op.GetTypeName()) return 0;
+    return ptr_num == op.GetPtrNum();
 }
 
-TypeInt :: TypeInt MakePointer() { return TypeInt(ptr_num + 1); }
+BasicTypePtr TypeInt :: MakePointer() 
+{ 
+    return BasicTypePtr(new TypeInt(ptr_num + 1));
+}
 
 // TypeVoid
 
-TypeVoid :: TypeVoid(int num) : type_name(VOID), ptr_num(num) 
+TypeVoid :: TypeVoid(int num) : BasicType(VOID, num)
 {
     if (num) throw exception();
 }
 
-TypeVoid :: bool operator == (const TypeVoid &op) override { return 1; }
+bool TypeVoid :: operator == (const BasicType &op) 
+{ 
+    if (type_name != op.GetTypeName()) return 0;
+    return 1; 
+}
 
 // TypeFuncPtr
 
-TypeFuncPtr :: TypeFuncPtr(int num, TypePtr ret_type, const vector<TypePtr> &vec)
-    : type_name(FUNCPTR), ptr_num(num), ret_type(ret_type), arg_types(vec) {}
+TypeFuncPtr :: TypeFuncPtr(int num, BasicTypePtr ret_type, const vector<BasicTypePtr> &vec)
+    : BasicType(FUNCPTR, num), ret_type(ret_type), arg_types(vec) {}
 
-TypeFuncPtr :: bool operator == (const TypeFuncPtr &op) override
+BasicTypePtr TypeFuncPtr :: GetRetType() { return ret_type; }
+std :: vector<BasicTypePtr>& GetArgTypes() { return arg_types; }
+
+bool TypeFuncPtr :: operator == (const BasicType &op)
 {
     if (this == &op) return 1;
-    if (ptr_num != op.ptr_num) return 0;
-    if (*ret_type != *(op.ret_type)) return 0;
-    size_t n1 = arg_types.size(), n2 = op.arg_types.size();
+    if (type_name != op.GetTypeName()) return 0;
+    auto other = dynamic_cast<const TypeFuncPtr&>(op);
+    if (ptr_num != other.GetPtrNum()) return 0;
+    if (*ret_type != *(other.ret_type)) return 0;
+    size_t n1 = arg_types.size(), n2 = other.arg_types.size();
     if (n1 != n2) return 0;
     for (auto i = 0; i < n1; i++)
-        if (*(arg_types[i]) != *(op.arg_types[i])) return 0;
+        if (*(arg_types[i]) != *(other.arg_types[i])) return 0;
     return 1;
 }
 
-TypeFuncPtr :: TypeFuncPtr MakePointer()
+BasicTypePtr TypeFuncPtr :: MakePointer()
 {
-    return TypeFuncPtr(ptr_num + 1, ret_type, arg_types);
+    return BasicTypePtr(new TypeFuncPtr(ptr_num + 1, ret_type, arg_types));
 }
