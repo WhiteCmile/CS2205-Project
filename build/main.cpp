@@ -1,8 +1,10 @@
-#include <cstdio.h>
+#include <cstdio>
+#include <exception>
 #include "lang.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "interpreter.hpp"
+#include "symboltable.hpp"
 
 extern GlobItemList * root;
 int yyparse();
@@ -23,8 +25,13 @@ int main(int argc, char * * argv) {
     }
     yyparse();
     fclose(yyin);
-    ResProg * r = InitResProg(root);
-    while (!TestEnd(r)) {
-        Step(r);
-    }
+    SymbolTable * table = new SymbolTable();
+    PreProcess(root, table); // process the global items
+    GlobItem * glob_main = (table -> GetValue("main")) -> GetFunc();
+    if (!glob_main || glob_main -> type != T_FUNC_DEF) throw :: exception();
+    Cmd * main_cmds = glob_main -> data.FUNC_DEF.body; // get body of main function
+    ResProg * res = InitResProg(main_cmds);
+    while (!TestEnd(res)) Step(res);
+    delete table;
+    return 0;
 }
