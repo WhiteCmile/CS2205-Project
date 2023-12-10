@@ -78,10 +78,10 @@ Expr * TReadInt()
     return res;
 }
 
-Expr * TFunc(char * name, ExprList * args) {
+Expr * TFunc(Expr * func, ExprList * args) {
     Expr * res = NewPtr<Expr> ();
     res -> e_type = T_FUNC;
-    res -> data.FUNC.name = name;
+    res -> data.FUNC.func = func;
     res -> data.FUNC.args = args;
     return res;
 }
@@ -183,10 +183,10 @@ Cmd * TDoWhile(Cmd * body, Expr * cond) {
     return res;
 }
 
-Cmd * TProc(char * name, ExprList * args) {
+Cmd * TProc(Expr * func, ExprList * args) {
     Cmd * res = NewPtr<Cmd> ();
     res -> c_type = T_PROC;
-    res -> data.PROC.name = name;
+    res -> data.PROC.func = func;
     res -> data.PROC.args = args;
     return res;
 }
@@ -363,9 +363,11 @@ void PrintExpr(Expr * e) {
         printf("READ_INT()");
         break;
     case T_FUNC:
-        printf("FUNC(%s", e -> data.FUNC.name);
+        printf("(FUNC(");
+        PrintExpr(e -> data.FUNC.func);
+        printf(") (");
         PrintExprList(e -> data.FUNC.args);
-        printf(")");
+        printf("))");
         break;
     }
 }
@@ -479,9 +481,11 @@ void PrintCmd(Cmd * c) {
         printf(")");
         break;
     case T_PROC:
-        printf("PROC(%s", c -> data.PROC.name);
+        printf("(PROC(");
+        PrintExpr(c -> data.PROC.func);
+        printf(") (");
         PrintExprList(c -> data.PROC.args);
-        printf(")");
+        printf("))");
         break;
     case T_WC:
         printf("WRITE_CHAR(");

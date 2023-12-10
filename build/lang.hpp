@@ -81,7 +81,7 @@ struct Expr{
         struct { Expr * arg; } DEREF;
         struct { Expr * arg; } ADDR_OF;
         struct { void * none; } RI;
-        struct { char * name; ExprList * args; } FUNC;
+        struct { Expr * func; ExprList * args; } FUNC;
     } data;
 };
 
@@ -119,7 +119,7 @@ struct Cmd {
         struct { Expr * cond; Cmd * body; } WHILE;
         struct { Cmd * init; Expr * cond; Cmd * incr; Cmd * body; } FOR;
         struct { Cmd * body; Expr * cond; } DO_WHILE;
-        struct { char * name; ExprList * args; } PROC;
+        struct { Expr * func; ExprList * args; } PROC;
         struct { Expr * expr; } WC;
         struct { Expr * expr; } WI;
         struct { void * none; } BREAK;
@@ -156,7 +156,7 @@ Expr * TUnOp(UnOpType op, Expr* arg);
 Expr * TDeref(Expr* arg);
 Expr * TAddrOf(Expr* arg);
 Expr * TReadInt();
-Expr * TFunc(char * name, ExprList * args);
+Expr * TFunc(Expr * func, ExprList * args);
 Type * TTypeInt(int n);
 Type * TTypeVoid(int n);
 Type * TTypeFuncPtr(int n, Type * ret_type, TypeList * lst); 
@@ -170,7 +170,7 @@ Cmd * TWhile(Expr* cond, Cmd * body);
 Cmd * TFor(Cmd * init, Expr* cond,
                   Cmd * incr, Cmd * body);
 Cmd * TDoWhile(Cmd * body, Expr* cond);
-Cmd * TProc(char * name, ExprList * args);
+Cmd * TProc(Expr * expr, ExprList * args);
 Cmd * TLocalDecl(char * name, Cmd * body);
 Cmd * TWriteChar(Expr * expr);
 Cmd * TWriteInt(Expr * expr);

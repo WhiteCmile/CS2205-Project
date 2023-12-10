@@ -43,7 +43,7 @@ E :=    N | V | -E | E + E | E - E | E * E | E / E | E % E |
         E && E | E || E | !E |
         * E | & E |
         read_int () | 
-        V (E, E, ..., E) | V ()
+        E (E, E, ..., E) | E ()
 
 STAR_LIST :=    * | STAR_LIST *
 
@@ -61,7 +61,7 @@ C :=    VAR_DECL |
         while (E) do { C } |
         for { C } ( E ) { C } { C } |
         do { C } while (E) |
-        V (E, E, ..., E) | V ()
+        E (E, E, ..., E) | E ()
         write_char ( E ) | write_int ( E )
         continue | break | return
 
