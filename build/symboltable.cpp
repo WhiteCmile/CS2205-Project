@@ -146,6 +146,18 @@ void SymbolTable::ModifyByAddress(Address address, ValuePtr value_ptr) {
 }
 
 /**
+ * Check if the given address is in symbol table.
+ * If not, throw an exception.
+ * This function is designed for the case of &x.
+ */
+void SymbolTable::CheckAddress(Address address) {
+    if (address_table.find(address) != address_table.end()) {
+        return;
+    } else throw RuntimeError("unrecorded address");
+    return;
+}
+
+/**
  * Return the value of given variable (if legal).
  * 
  * If the variable is uninitialized, throw an exception.

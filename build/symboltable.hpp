@@ -60,6 +60,7 @@ public:
     void InsertItem(Name name, ValuePtr type, bool initialized);
     void ModifyByName(Name name, ValuePtr value);
     void ModifyByAddress(Address address, ValuePtr value);
+    void CheckAddress(Name name);
     ValuePtr GetValue(Name name);
     Address GetAddress(Name name);
     BasicTypePtr GetType(Name name);
