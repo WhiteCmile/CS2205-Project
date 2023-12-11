@@ -8,7 +8,7 @@ using std :: shared_ptr;
 
 enum TypeName
 {
-    INT, VOID, FUNCPTR
+    INT, VOID, FUNCPTR, BOOL
 };
 
 class BasicType;
@@ -71,6 +71,15 @@ public:
     TypeVoid(int num);
 
     bool operator == (const BasicType &op) override; // TypeVoid == TypeVoid
+};
+
+class TypeBool : public BasicType
+{
+public:
+    //constructor
+    TypeBool(int num);
+
+    bool operator == (const BasicType &op) override; // TypeBool == TypeBool
 };
 
 class TypeFuncPtr : public BasicType

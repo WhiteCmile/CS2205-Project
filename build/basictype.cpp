@@ -1,9 +1,8 @@
-#include <exception>
 #include <vector>
+#include "RE.hpp"
 #include "lang.hpp"
 #include "basictype.hpp"
 using std :: vector;
-using std :: exception;
 
 // BasicTypePtr
 BasicTypePtr :: BasicTypePtr(BasicType * ptr) : ptr(ptr) {}
@@ -20,7 +19,10 @@ BasicType :: BasicType(TypeName type_name, int num) : type_name(type_name), ptr_
 
 bool BasicType :: operator != (const BasicType &op) { return !(*this == op); }
 
-bool BasicType :: operator == (const BasicType &op) { throw exception(); }
+bool BasicType :: operator == (const BasicType &op) 
+{ 
+    throw RuntimeError("undefined error");
+}
 
 TypeName BasicType :: GetTypeName() const { return type_name; }
 
@@ -28,7 +30,10 @@ int BasicType :: GetPtrNum() const { return ptr_num; }
 
 int BasicType :: Dim() const { return ptr_num; }
 
-BasicTypePtr BasicType :: MakePointer() { throw exception(); }
+BasicTypePtr BasicType :: MakePointer() 
+{ 
+    throw RuntimeError("undefined error"); 
+}
 
 // TypeInt
 
@@ -49,10 +54,23 @@ BasicTypePtr TypeInt :: MakePointer()
 
 TypeVoid :: TypeVoid(int num) : BasicType(VOID, num)
 {
-    if (num) throw exception();
+    if (num) throw RuntimeError("find void *");
 }
 
 bool TypeVoid :: operator == (const BasicType &op) 
+{ 
+    if (type_name != op.GetTypeName()) return 0;
+    return 1; 
+}
+
+// TypeBool
+
+TypeBool :: TypeBool(int num) : BasicType(BOOL, num)
+{
+    if (num) throw RuntimeError("find bool *");
+}
+
+bool TypeBool :: operator == (const BasicType &op) 
 { 
     if (type_name != op.GetTypeName()) return 0;
     return 1; 
