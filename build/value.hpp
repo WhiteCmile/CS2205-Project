@@ -27,6 +27,8 @@ public:
     // constructor
     ValuePtr(BasicValue *);
 
+    ValuePtr MakeAddrOf(); // return &x when x is a ValuePtr
+
     BasicValue * operator -> (); // operator -> 
     BasicValue & operator * (); // operator *
     operator bool();
@@ -71,7 +73,6 @@ public:
     virtual operator bool();
     virtual ValuePtr operator ! (); // !E
 
-    virtual ValuePtr operator & (); // & E
     virtual ValuePtr & operator * (); // * E
 };
 
@@ -121,7 +122,6 @@ public:
 
     operator bool() override;
 
-    ValuePtr operator & () override;
     ValuePtr & operator * () override;
 };
 
@@ -144,7 +144,6 @@ public:
 
     ValuePtr operator == (const BasicValue &op) override; // FuncPtr == FuncPtr
 
-    ValuePtr operator & () override; // & E
     ValuePtr & operator * () override; // * E
 };
 

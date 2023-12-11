@@ -8,6 +8,19 @@
 // ValuePtr
 ValuePtr :: ValuePtr(BasicValue * ptr) : ptr(ptr) {}
 
+ValuePtr ValuePtr :: MakeAddrOf()
+{
+    BasicTypePtr type_ptr = (*this) -> GetType();
+    TypeName type_name = type_ptr -> GetTypeName();
+    switch (type_name)
+    {
+        case INT:
+            return ValuePtr(new Int(type_ptr -> MakePointer(), *this, 0));
+        case FUNCPTR:
+            return ValuePtr(new FuncPtr(type_ptr -> MakePointer(), *this, nullptr));
+    }
+}
+
 BasicValue * ValuePtr :: operator -> () { return ptr.get(); }
 
 BasicValue & ValuePtr :: operator * () { return *ptr; }
@@ -52,8 +65,6 @@ ValuePtr BasicValue :: operator > (const BasicValue &op) { throw RuntimeError("t
 BasicValue :: operator bool() { throw RuntimeError("undefined error"); }
 
 ValuePtr BasicValue :: operator ! () { return ValuePtr(new Bool(!(bool) (*this))); }
-
-ValuePtr BasicValue :: operator & () { throw RuntimeError("undefined error"); }
 
 ValuePtr & BasicValue :: operator * () { throw RuntimeError("undefined error"); }
 
@@ -174,11 +185,6 @@ Int :: operator bool()
     return 1;
 }
 
-ValuePtr Int :: operator & ()
-{
-    return ValuePtr(new Int(type -> MakePointer(), ValuePtr(this), 0));
-}
-
 ValuePtr & Int :: operator * ()
 {
     if (!val) throw RuntimeError("undefined pointer");
@@ -192,7 +198,7 @@ FuncPtr :: FuncPtr(BasicTypePtr type, ValuePtr ptr, GlobItem * name)
 
 GlobItem * FuncPtr :: GetFunc() { return func; }
 
-void ChangeGlobItem(GlobItem * gi) { func = gi; }
+void FuncPtr :: ChangeGlobItem(GlobItem * gi) { func = gi; }
 
 FuncPtr :: operator bool()
 {
@@ -204,11 +210,6 @@ ValuePtr FuncPtr :: operator == (const BasicValue &op)
     if (type != op.GetType()) return 0;
     if (!val || !op.GetVal()) return 0;
     return ValuePtr(new Bool(val == op.GetVal()));
-}
-
-ValuePtr FuncPtr :: operator & ()
-{
-    return ValuePtr(new FuncPtr(type -> MakePointer(), ValuePtr(this), nullptr));
 }
 
 ValuePtr & FuncPtr :: operator * ()
