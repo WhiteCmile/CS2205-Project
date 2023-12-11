@@ -1,9 +1,8 @@
 %{
-#include <exception>
 #include <cstdio>
+#include "RE.hpp"
 #include "lang.hpp"
 #include "lexer.hpp"
-using std :: exception;
 void yyerror(char * str);
 int yylex();
 GlobItemList * root;
@@ -111,13 +110,13 @@ NT_TYPE_LST:
     NT_TYPE
     {
         if (($1) -> type == T_VOID)
-            throw exception();
+            throw RuntimeError("try to define a function pointer with a void as its argument");
         $$ = (TTypeListCons($1, TTypeNil()));
     }
     |   NT_TYPE TM_COMMA NT_TYPE_LST
     {
         if (($1) -> type == T_VOID)
-            throw exception();
+            throw RuntimeError("try to define a function pointer with a void as its argument");
         $$ = (TTypeListCons($1, $3));
     }
 ;
@@ -137,7 +136,7 @@ NT_VAR_DECL:
     NT_TYPE TM_IDENT
     {
         if (($1) -> type == T_VOID)
-            throw exception();
+            throw RuntimeError("try to define a function with a void as its argument");
         $$ = (TVarDecl($1, $2));
     }
     |   NT_TYPE TM_LEFT_PAREN NT_STAR_LST TM_IDENT TM_RIGHT_PAREN TM_LEFT_PAREN TM_RIGHT_PAREN
