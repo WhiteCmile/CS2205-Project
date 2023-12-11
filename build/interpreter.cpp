@@ -275,6 +275,7 @@ void Step(ResProg * r, Table * table)
                         if (*(lval -> GetType()) != *(rval -> GetType()))
                             throw RuntimeError("try to bind a variable to another value whose type is different");
                         table -> CheckAddress(lval.GetAddress());
+                        table -> ModifyByAddress(lval.GetAddress(), rval);
                         break;
                     }
                 }
