@@ -22,7 +22,6 @@
 #include <vector>
 #include <stack>
 #include <string>
-#include <exception>
 
 typedef unsigned int Time;
 typedef unsigned long long Address;

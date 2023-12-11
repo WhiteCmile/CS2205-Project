@@ -6,14 +6,15 @@
  * Initialization
  */
 
+#include "RE.hpp"
 #include "basictype.hpp"
 #include "value.hpp"
 #include "symboltable.hpp"
+#include <exception>
 #include <unordered_map>
 #include <vector>
 #include <stack>
 #include <string>
-#include <exception>
 
 SymbolTable :: SymbolTable() {
     current_frame_time = time;
@@ -34,14 +35,15 @@ int SymbolTable::IsLegalVariable(Name name) {
                 return time_index_table[name_table[name].back()];
             if (name_table[name][0] < global_time_limit)
                 return time_index_table[name_table[name][0]];
-            throw std::exception();
+            throw std :: exception();
         }
-    } else throw std::exception();
+    } else throw RuntimeError("undefined variable" + name);
     return -1;
 }
 
 /**
  * Creates a new frame by recording the time and frame type.
+ * If frametype = 1, then this frame is a function frame
  */
 void SymbolTable::NewFrame(FrameType frametype) {
     TimeElapse();
