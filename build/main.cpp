@@ -1,5 +1,7 @@
-#include <cstdio>
 #include <exception>
+#include <iostream>
+#include <cstdio>
+#include "RE.hpp"
 #include "lang.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -26,12 +28,23 @@ int main(int argc, char * * argv) {
     yyparse();
     fclose(yyin);
     SymbolTable * table = new SymbolTable();
-    PreProcess(root, table); // process the global items
-    GlobItem * glob_main = (table -> GetValue("main")) -> GetFunc();
-    if (!glob_main || glob_main -> type != T_FUNC_DEF) throw :: exception();
-    Cmd * main_cmds = glob_main -> data.FUNC_DEF.body; // get body of main function
-    ResProg * res = InitResProg(main_cmds);
-    while (!TestEnd(res)) Step(res);
+    try
+    {
+        PreProcess(root, table); // process the global items
+        auto main_func = dynamic_cast<FuncPtr*>((table -> GetValue("main")).get());
+        if (!main_func) 
+            throw RuntimeError("main function is not defined");
+        GlobItem * glob_main = main_func -> GetFunc();
+        if (!glob_main || glob_main -> type != T_FUNC_DEF) 
+            throw RuntimeError("error type of main function");
+        Cmd * main_cmds = glob_main -> data.FUNC_DEF.body; // get body of main function
+        ResProg * res = InitResProg(main_cmds);
+        while (!TestEnd(res)) Step(res, table);
+    }
+    catch(const std :: exception & RE)
+    {
+        std :: cout << "Exception occured: " << RE.what() << std :: endl;
+    }
     delete table;
     return 0;
 }
