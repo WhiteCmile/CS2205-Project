@@ -97,8 +97,6 @@ void PreProcess(GlobItemList * c, Table * table)
 /*
     before the program is interpreted, all global items need to be processed
 */
-    table -> NewFrame(0);
-    table -> InsertItem("__return", ValuePtr(new Int(BasicTypePtr(new TypeInt(0)), ValuePtr(nullptr), 0)), 0);
     GlobItem * cur;
     while (c)
     {
@@ -109,6 +107,7 @@ void PreProcess(GlobItemList * c, Table * table)
             FuncDefinition(cur, table);
         c = c -> next;
     }
+    table -> NewFrame(0);
 }
 
 ResProg * NewResProgPtr() {
@@ -208,6 +207,51 @@ ValuePtr Eval(Expr * e, Table * table, bool required = 1)
         }
         case T_FUNC:
         {
+            Expr * func_expr = e -> data.FUNC.func;
+            ExprList * args_expr = e -> data.FUNC.args;
+            ValuePtr func = Eval(func_expr, table);
+            vector<ValuePtr> arg_values;
+            while (args_expr)
+            {
+                arg_values.push_back(Eval(args_expr -> data, table));
+                args_expr = args_expr -> next;
+            }
+            TypeFuncPtr * func_type = dynamic_cast<TypeFuncPtr*>((func -> GetType()).get());
+            if (func_type -> GetTypeName() != FUNCPTR || func_type -> Dim())
+                throw RuntimeError("try to apply a non-procedure");
+            GlobItem * call_func = dynamic_cast<FuncPtr*>(func.get()) -> GetFunc();
+            vector<BasicTypePtr> para_types = func_type -> GetArgTypes();
+            BasicTypePtr ret_type_ptr = func_type -> GetRetType();
+            if (para_types.size() != arg_values.size())
+                throw RuntimeError("wrong number of arguments");
+            for (auto i = 0; i < para_types.size(); i++)
+                if (*(arg_values[i] -> GetType()) != *para_types[i])
+                    throw RuntimeError("argument type differs from parameter type");
+            table -> NewFrame(1);
+            switch (ret_type_ptr -> GetTypeName())
+            {
+                case INT:
+                {
+                    table -> InsertItem("__return", ValuePtr(new Int(ret_type_ptr, ValuePtr(nullptr), 0)), 0);
+                    break;
+                }
+                case FUNCPTR:
+                {
+                    table -> InsertItem("__return", ValuePtr(new FuncPtr(ret_type_ptr, ValuePtr(nullptr), nullptr)), 0);
+                    break;
+                }
+            }
+            VarList * args = call_func -> data.FUNC_DEF.args;
+            for (auto item : arg_values)
+            {
+                table -> InsertItem(args -> var -> name, item, 1);
+                args = args -> next;
+            }
+            ResProg * cur_func = InitResProg(call_func -> data.FUNC_DEF.body);
+            while (!TestEnd(cur_func)) Step(cur_func, table);
+            ValuePtr ret_value = table -> GetValue("__return");
+            table -> DeleteFrame();
+            return ret_value;
         }
     }
 }
