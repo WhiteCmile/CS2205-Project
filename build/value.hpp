@@ -52,6 +52,7 @@ public:
 
     BasicTypePtr GetType() const;
     ValuePtr GetVal() const;
+    void Modify(ValuePtr);
 
     virtual ValuePtr operator + (const BasicValue &op); // E + E
     virtual ValuePtr operator - (const BasicValue &op); // E - E
@@ -103,6 +104,7 @@ public:
     Int(long long);
 
     long long GetNum();
+    void ChangeNum(long long);
 
     ValuePtr operator + (const BasicValue &op) override; // a + b
     ValuePtr operator - (const BasicValue &op) override; // a - b
@@ -136,6 +138,8 @@ public:
     FuncPtr(BasicTypePtr type, ValuePtr ptr, GlobItem * name);
 
     GlobItem * GetFunc();
+    void ChangeGlobItem(GlobItem *);
+
     operator bool() override;
 
     ValuePtr operator == (const BasicValue &op) override; // FuncPtr == FuncPtr

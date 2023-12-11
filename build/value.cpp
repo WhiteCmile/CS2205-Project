@@ -33,6 +33,7 @@ BasicValue :: BasicValue(BasicTypePtr type, ValuePtr ptr)
 
 BasicTypePtr BasicValue :: GetType() const { return type; }
 ValuePtr BasicValue :: GetVal() const { return val; }
+void BasicValue :: Modify(ValuePtr new_val) { val = new_val; }
 
 ValuePtr BasicValue :: operator + (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
 ValuePtr BasicValue :: operator - (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
@@ -74,6 +75,8 @@ Int :: Int(BasicTypePtr type, ValuePtr ptr, long long m)
 Int :: Int(long long m) : BasicValue(BasicTypePtr(new TypeInt(0)), ValuePtr(nullptr)), n(m) {}
 
 long long Int :: GetNum() { return n; }
+
+void Int :: ChangeNum(long long m) { n = m; }
 
 // check if all the operands are int
 void CheckOperand(const BasicValue &op1)
@@ -188,6 +191,8 @@ FuncPtr :: FuncPtr(BasicTypePtr type, ValuePtr ptr, GlobItem * name)
     : BasicValue(type, ptr), func(name) {}
 
 GlobItem * FuncPtr :: GetFunc() { return func; }
+
+void ChangeGlobItem(GlobItem * gi) { func = gi; }
 
 FuncPtr :: operator bool()
 {
