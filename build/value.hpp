@@ -32,6 +32,8 @@ public:
     operator bool();
     unsigned long long GetAddress() const;
     bool operator == (const ValuePtr &);
+
+    BasicValue * get();
 };
 
 class BasicValue
@@ -58,20 +60,34 @@ public:
     virtual ValuePtr operator / (const BasicValue &op); // E / E
     virtual ValuePtr operator % (const BasicValue &op); // E % E
 
-    virtual bool operator < (const BasicValue &op); // E < E
-    virtual bool operator <= (const BasicValue &op); // E <= E
-    virtual bool operator == (const BasicValue &op); // E == E
-    virtual bool operator != (const BasicValue &op); // E != E
-    virtual bool operator >= (const BasicValue &op); // E >= E
-    virtual bool operator > (const BasicValue &op); // E > E
+    virtual ValuePtr operator < (const BasicValue &op); // E < E
+    virtual ValuePtr operator <= (const BasicValue &op); // E <= E
+    virtual ValuePtr operator == (const BasicValue &op); // E == E
+    virtual ValuePtr operator != (const BasicValue &op); // E != E
+    virtual ValuePtr operator >= (const BasicValue &op); // E >= E
+    virtual ValuePtr operator > (const BasicValue &op); // E > E
 
     virtual operator bool();
-    virtual bool operator ! (); // !E
-    virtual bool operator && (const BasicValue &op); // E && E
-    virtual bool operator || (const BasicValue &op); // E || E
+    virtual ValuePtr operator ! (); // !E
 
-    virtual ValuePtr operator & () = 0; // & E
-    virtual ValuePtr & operator * () = 0; // * E
+    virtual ValuePtr operator & (); // & E
+    virtual ValuePtr & operator * (); // * E
+};
+
+class Bool : public BasicValue
+{
+private:
+/*
+    @attr flag(bool): bool value in C++ of a Bool object
+*/
+    bool flag;
+public:
+    Bool(BasicTypePtr type, ValuePtr ptr, bool b);
+    Bool(bool);
+
+    operator bool();
+
+    bool GetBool();
 };
 
 class Int : public BasicValue
@@ -84,6 +100,7 @@ private:
 public:
     // constructor
     Int(BasicTypePtr type, ValuePtr ptr, long long m);
+    Int(long long);
 
     long long GetNum();
 
@@ -94,11 +111,11 @@ public:
     ValuePtr operator / (const BasicValue &op) override; // a / b
     ValuePtr operator % (const BasicValue &op) override; // a % b
 
-    bool operator < (const BasicValue &op) override; // a < b
-    bool operator <= (const BasicValue &op) override; // a <= b
-    bool operator == (const BasicValue &op) override; // a == b
-    bool operator >= (const BasicValue &op) override; // a >= b
-    bool operator > (const BasicValue &op) override; // a > b
+    ValuePtr operator < (const BasicValue &op) override; // a < b
+    ValuePtr operator <= (const BasicValue &op) override; // a <= b
+    ValuePtr operator == (const BasicValue &op) override; // a == b
+    ValuePtr operator >= (const BasicValue &op) override; // a >= b
+    ValuePtr operator > (const BasicValue &op) override; // a > b
 
     operator bool() override;
 
@@ -121,7 +138,7 @@ public:
     GlobItem * GetFunc();
     operator bool() override;
 
-    bool operator == (const BasicValue &op) override; // FuncPtr == FuncPtr
+    ValuePtr operator == (const BasicValue &op) override; // FuncPtr == FuncPtr
 
     ValuePtr operator & () override; // & E
     ValuePtr & operator * () override; // * E

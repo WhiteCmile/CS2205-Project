@@ -1,10 +1,9 @@
-#include <exception>
 #include <cstdarg>
 #include <cstdint>
 #include <vector>
+#include "RE.hpp"
 #include "value.hpp"
 #include "basictype.hpp"
-using std :: exception;
 
 // ValuePtr
 ValuePtr :: ValuePtr(BasicValue * ptr) : ptr(ptr) {}
@@ -13,7 +12,7 @@ BasicValue * ValuePtr :: operator -> () { return ptr.get(); }
 
 BasicValue & ValuePtr :: operator * () { return *ptr; }
 
-ValuePtr :: operator bool() { return ptr.get(); }
+ValuePtr :: operator bool() { return *(ptr.get()); }
 
 unsigned long long ValuePtr :: GetAddress() const
 { 
@@ -25,6 +24,8 @@ bool ValuePtr :: operator == (const ValuePtr &other)
     return this -> GetAddress() == other.GetAddress();
 }
 
+BasicValue * ValuePtr :: get() { return ptr.get(); }
+
 // BasicValue
 
 BasicValue :: BasicValue(BasicTypePtr type, ValuePtr ptr)
@@ -33,38 +34,44 @@ BasicValue :: BasicValue(BasicTypePtr type, ValuePtr ptr)
 BasicTypePtr BasicValue :: GetType() const { return type; }
 ValuePtr BasicValue :: GetVal() const { return val; }
 
-ValuePtr BasicValue :: operator + (const BasicValue &op) { throw exception(); }
-ValuePtr BasicValue :: operator - (const BasicValue &op) { throw exception(); }
-ValuePtr BasicValue :: operator - () { throw exception(); }
-ValuePtr BasicValue :: operator * (const BasicValue &op) { throw exception(); }
-ValuePtr BasicValue :: operator / (const BasicValue &op) { throw exception(); }
-ValuePtr BasicValue :: operator % (const BasicValue &op) { throw exception(); }
+ValuePtr BasicValue :: operator + (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator - (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator - () { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator * (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator / (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator % (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
 
-bool BasicValue :: operator < (const BasicValue &op) { throw exception(); }
-bool BasicValue :: operator <= (const BasicValue &op) { throw exception(); }
-bool BasicValue :: operator == (const BasicValue &op) { throw exception(); }
-bool BasicValue :: operator != (const BasicValue &op) { return !(*this == op); }
-bool BasicValue :: operator >= (const BasicValue &op) { throw exception(); }
-bool BasicValue :: operator > (const BasicValue &op) { throw exception(); }
+ValuePtr BasicValue :: operator < (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator <= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator == (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator != (const BasicValue &op) { return ValuePtr(new Bool(!(*this == op))); }
+ValuePtr BasicValue :: operator >= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator > (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
 
-BasicValue :: operator bool() { throw exception(); }
+BasicValue :: operator bool() { throw RuntimeError("undefined error"); }
 
-bool BasicValue :: operator ! () { return !(*this); }
+ValuePtr BasicValue :: operator ! () { return ValuePtr(new Bool(!(bool) (*this))); }
 
-bool BasicValue :: operator && (const BasicValue &op)
-{
-    return (*this) && op;
-}
+ValuePtr BasicValue :: operator & () { throw RuntimeError("undefined error"); }
 
-bool BasicValue :: operator || (const BasicValue &op)
-{
-    return (*this) || op;
-}
+ValuePtr & BasicValue :: operator * () { throw RuntimeError("undefined error"); }
+
+// Bool
+
+Bool :: Bool(BasicTypePtr type, ValuePtr ptr, bool b) : BasicValue(type, ptr), flag(b) {}
+
+Bool :: Bool(bool b) : BasicValue(BasicTypePtr(new TypeBool(0)), ValuePtr(nullptr)), flag(b) {}
+
+Bool :: operator bool() { return GetBool(); }
+
+bool Bool :: GetBool() { return flag; }
 
 // Int
 
 Int :: Int(BasicTypePtr type, ValuePtr ptr, long long m) 
     : BasicValue(type, ptr), n(m) {}
+
+Int :: Int(long long m) : BasicValue(BasicTypePtr(new TypeInt(0)), ValuePtr(nullptr)), n(m) {}
 
 long long Int :: GetNum() { return n; }
 
@@ -73,7 +80,7 @@ void CheckOperand(const BasicValue &op1)
 {
     BasicTypePtr type = op1.GetType();
     if (type -> Dim() || type -> GetTypeName() != INT) 
-        throw exception();
+        throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int");
 }
 void CheckOperands(const BasicValue &op1, const BasicValue &op2)
 {
@@ -121,41 +128,41 @@ ValuePtr Int :: operator % (const BasicValue &op)
     return ValuePtr(new Int(BasicTypePtr(new TypeInt(0)), ValuePtr(nullptr), n % other.n));
 }
 
-bool Int :: operator < (const BasicValue &op)
+ValuePtr Int :: operator < (const BasicValue &op)
 {
     CheckOperands(*this, op);
     auto other = dynamic_cast<const Int&>(op);
-    return n < other.n;
+    return ValuePtr(new Bool(n < other.n));
 }
 
-bool Int :: operator <= (const BasicValue &op)
+ValuePtr Int :: operator <= (const BasicValue &op)
 {
     CheckOperands(*this, op);
     auto other = dynamic_cast<const Int&>(op);
-    return n <= other.n;
+    return ValuePtr(new Bool(n <= other.n));
 }
 
-bool Int :: operator >= (const BasicValue &op)
+ValuePtr Int :: operator >= (const BasicValue &op)
 {
     CheckOperands(*this, op);
     auto other = dynamic_cast<const Int&>(op);
-    return n >= other.n;
+    return ValuePtr(new Bool(n >= other.n));
 }
 
-bool Int :: operator > (const BasicValue &op)
+ValuePtr Int :: operator > (const BasicValue &op)
 {
     CheckOperands(*this, op);
     auto other = dynamic_cast<const Int&>(op);
-    return n > other.n;
+    return ValuePtr(new Bool(n > other.n));
 }
 
-bool Int :: operator == (const BasicValue &op)
+ValuePtr Int :: operator == (const BasicValue &op)
 {
     if (type != op.GetType()) return 0;
     auto other = dynamic_cast<const Int &>(op);
-    if (!type -> Dim()) return n == other.n;
+    if (!type -> Dim()) return ValuePtr(new Bool(n == other.n));
     if (!val || !other.GetVal()) return 0;
-    return val == other.GetVal();
+    return ValuePtr(new Bool(val == other.GetVal()));
 }
 
 Int :: operator bool()
@@ -171,7 +178,7 @@ ValuePtr Int :: operator & ()
 
 ValuePtr & Int :: operator * ()
 {
-    if (!val) throw exception();
+    if (!val) throw RuntimeError("undefined pointer");
     return val;
 }
 
@@ -187,11 +194,11 @@ FuncPtr :: operator bool()
     return 1;
 }
 
-bool FuncPtr :: operator == (const BasicValue &op)
+ValuePtr FuncPtr :: operator == (const BasicValue &op)
 {
     if (type != op.GetType()) return 0;
     if (!val || !op.GetVal()) return 0;
-    return val == op.GetVal();
+    return ValuePtr(new Bool(val == op.GetVal()));
 }
 
 ValuePtr FuncPtr :: operator & ()
