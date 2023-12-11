@@ -5,9 +5,10 @@
 #include "symboltable.hpp"
 
 struct ResProg;
-ResProg * InitResProg(GlobItemList * c);
+ResProg * InitResProg(Cmd *);
 void PreProcess(GlobItemList *, SymbolTable *);
-void Step(ResProg * r);
-int TestEnd(ResProg * r);
+void Eval(Expr *);
+void Step(ResProg *, SymbolTable *);
+int TestEnd(ResProg *);
 
 #endif

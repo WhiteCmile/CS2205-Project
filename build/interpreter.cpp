@@ -12,10 +12,14 @@ using std :: vector;
 
 struct ContList 
 {
+    Cmd * data;
+    ContList * next;
 };
 
 struct ResProg 
 {
+    Cmd * foc;
+    ContList * ectx;
 };
 
 BasicTypePtr TypeProcess(Type * ast_type)
@@ -105,28 +109,223 @@ void PreProcess(GlobItemList * c, Table * table)
     }
 }
 
-// ResProg * NewResProgPtr() {
-//     ResProg * res = new ResProg;
-//     if (res == nullptr) {
-//         printf("Failure in malloc.\n");
-//         exit(0);
-//     }
-//     return res;
-// }
+ResProg * NewResProgPtr() {
+    ResProg * res = new ResProg;
+    if (res == nullptr) {
+        printf("Failure in malloc.\n");
+        exit(0);
+    }
+    return res;
+}
 
-// ResProg * InitResProg(GlobItemList * c) {
-//     ResProg * res = NewResProgPtr();
-//     res -> foc = c;
-//     res -> ectx = CL_Nil();
-//     return res;
-// }
+ResProg * InitResProg(Cmd * c) {
+    ResProg * res = NewResProgPtr();
+    res -> foc = c;
+    res -> ectx = nullptr;
+    return res;
+}
 
-void step(ResProg * r) 
+ValuePtr Eval(Expr * e, Table * table)
 {
+    switch (e -> e_type)
+    {
+        case T_CONST:
+            return ValuePtr(new Int(e -> data.CONST.val));
+        case T_VAR:
+            return table -> GetValue(string(e -> data.VAR.name));
+        case T_BINOP:
+        {
+            Expr * left = e -> data.BINOP.left, * right = e -> data.BINOP.right;
+            switch (e -> data.BINOP.op)
+            {
+                case T_PLUS:
+                    return *(Eval(left, table)) + *(Eval(right, table));
+                case T_MINUS:
+                    return *(Eval(left, table)) - *(Eval(right, table));
+                case T_MUL:
+                    return *(Eval(left, table)) * *(Eval(right, table));
+                case T_DIV:
+                    return *(Eval(left, table)) / *(Eval(right, table));
+                case T_MOD:
+                    return *(Eval(left, table)) % *(Eval(right, table));
+                case T_LT:
+                    return *(Eval(left, table)) < *(Eval(right, table));
+                case T_GT:
+                    return *(Eval(left, table)) > *(Eval(right, table));
+                case T_LE:
+                    return *(Eval(left, table)) <= *(Eval(right, table));
+                case T_GE:
+                    return *(Eval(left, table)) >= *(Eval(right, table));
+                case T_EQ:
+                    return *(Eval(left, table)) == *(Eval(right, table));
+                case T_NE:
+                    return *(Eval(left, table)) != *(Eval(right, table));
+                case T_AND:
+                {
+                    ValuePtr lval = Eval(left, table);
+                    if (!lval) return ValuePtr(new Bool(0));
+                    ValuePtr rval = Eval(left, table);
+                    return ValuePtr(new Bool((bool) rval));
+                }
+                case T_OR:
+                {
+                    ValuePtr lval = Eval(left, table);
+                    if (lval) return ValuePtr(new Bool(1));
+                    ValuePtr rval = Eval(left, table);
+                    return ValuePtr(new Bool((bool) rval));
+                }
+            }
+        }
+        case T_UNOP:
+        {
+            Expr * arg = e -> data.UNOP.arg;
+            switch (e -> data.UNOP.op)
+            {
+                case T_UMINUS:
+                    return -(*(Eval(arg, table)));
+                case T_NOT:
+                    return !(*(Eval(arg, table)));
+            }
+        }
+        case T_DEREF:
+        {
+        }
+        case T_ADDR_OF:
+        {
+        }
+        case T_RI:
+        {
+            long long val;
+            scanf("%lld", &val);
+            return ValuePtr(new Int(val));
+        }
+        case T_FUNC:
+        {
+        }
+    }
+}
+
+ContList * KSeqCons(Cmd * data, ContList * list)
+{
+    ContList * new_list = new ContList;
+    new_list -> data = data, new_list -> next = list;
+    return new_list;
+}
+
+ContList * KWhileCons(Cmd * data, ContList * list)
+{
+    ContList * new_list = new ContList;
+    new_list -> data = data, new_list -> next = list;
+    return new_list;
+}
+
+void Step(ResProg * r, Table * table)
+{
+    if (r -> foc == nullptr)
+    {
+        ContList * cl = r -> ectx;
+        r -> foc = cl -> data, r -> ectx = cl -> next;
+        delete cl;
+    }
+    else
+    {
+        Cmd * cmd = r -> foc;
+        switch (cmd -> c_type)
+        {
+            case T_DECL:
+            {
+                Var * var = cmd -> data.DECL.var;
+                VarDefinition(var, table);
+                r -> foc = nullptr;
+                break;
+            }
+            case T_NEW_FRAME:
+            {
+                table -> NewFrame(0);
+                r -> foc = nullptr;
+                break;
+            }
+            case T_DEL_FRAME:
+            {
+                table -> DeleteFrame();
+                r -> foc = nullptr;
+                break;
+            }
+            case T_ASGN:
+            {
+            }
+            case T_SEQ:
+            {
+                r -> foc = cmd -> data.SEQ.left;
+                r -> ectx = KSeqCons(cmd -> data.SEQ.right, r -> ectx);
+                break;
+            }
+            case T_IF:
+            {
+                if (Eval(cmd -> data.IF.cond, table)) 
+                    r -> foc = cmd -> data.IF.left;
+                else r -> foc = cmd -> data.IF.right;
+                break;
+            }
+            case T_WHILE:
+            {
+                if (Eval(cmd -> data.WHILE.cond, table))
+                {
+                    r -> foc = cmd -> data.WHILE.body;
+                    r -> ectx = KWhileCons(cmd, r -> ectx);
+                }
+                else r -> foc = nullptr;
+                break;
+            }
+            case T_FOR:
+            {
+            }
+            case T_DO_WHILE:
+            {
+                Cmd * new_cmd = TWhile(cmd -> data.WHILE.cond, cmd -> data.WHILE.body);
+                r -> foc = cmd -> data.WHILE.body, r -> ectx = KWhileCons(new_cmd, r -> ectx);
+                break;
+            }
+            case T_PROC:
+            {
+            }
+            case T_WC:
+            {
+                ValuePtr val_ptr = Eval(cmd -> data.WC.expr, table);
+                BasicTypePtr type = val_ptr -> GetType();
+                if (type -> GetTypeName() != INT || type -> Dim())
+                    throw RuntimeError("try to apply a non-int to write_char");
+                auto val = dynamic_cast<Int*>(val_ptr.get());
+                printf("%c", val -> GetNum());
+                r -> foc = nullptr;
+                break;
+            }
+            case T_WI:
+            {
+                ValuePtr val_ptr = Eval(cmd -> data.WC.expr, table);
+                BasicTypePtr type = val_ptr -> GetType();
+                if (type -> GetTypeName() != INT || type -> Dim())
+                    throw RuntimeError("try to apply a non-int to write_int");
+                auto val = dynamic_cast<Int*>(val_ptr.get());
+                printf("%lld", val -> GetNum());
+                r -> foc = nullptr;
+                break;
+            }
+            case T_BREAK:
+            {
+            }
+            case T_CONTINUE:
+            {
+            }
+            case T_RETURN:
+            {
+            }
+        }
+    }
 }
 
 int TestEnd(ResProg * r) 
 {
-    // if (r -> foc == nullptr && r -> ectx == nullptr) return 1;
-    // else return 0;
+    if (r -> foc == nullptr && r -> ectx == nullptr) return 1;
+    else return 0;
 }
