@@ -19,6 +19,9 @@ CXXFLAGS := -g -std=c++11
 ./build/lib.o: ./build/lib.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+./build/RE.o: ./build/RE.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 ./build/lexer.o: ./build/lexer.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -46,7 +49,7 @@ CXXFLAGS := -g -std=c++11
 ./build/main.o: ./build/main.cpp ./build/lexer.hpp ./build/parser.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-./bin/main: ./build/main.o ./build/lib.o ./build/lexer.o ./build/parser.o ./build/lang.o ./build/interpreter.o ./build/value.o ./build/basictype.o ./build/symboltable.o
+./bin/main: ./build/main.o ./build/RE.o ./build/lib.o ./build/lexer.o ./build/parser.o ./build/lang.o ./build/interpreter.o ./build/value.o ./build/basictype.o ./build/symboltable.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 all: ./bin/main
