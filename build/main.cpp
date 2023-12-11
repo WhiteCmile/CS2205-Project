@@ -32,19 +32,22 @@ int main(int argc, char * * argv) {
     {
         PreProcess(root, table); // process the global items
         auto main_func = dynamic_cast<FuncPtr*>((table -> GetValue("main")).get());
-        if (!main_func) 
+        if (main_func == nullptr) 
             throw RuntimeError("main function is not defined");
         GlobItem * glob_main = main_func -> GetFunc();
         if (!glob_main || glob_main -> type != T_FUNC_DEF) 
             throw RuntimeError("error type of main function");
         Cmd * main_cmds = glob_main -> data.FUNC_DEF.body; // get body of main function
         ResProg * res = InitResProg(main_cmds);
+        table -> NewFrame(1); // create frame for main function
         while (!TestEnd(res)) Step(res, table);
+        table -> DeleteFrame(); // delete frame of main function
     }
     catch(const std :: exception & RE)
     {
         std :: cout << "Exception occured: " << RE.what() << std :: endl;
     }
-    delete table;
+    table -> DeleteFrame();
+    // delete table;
     return 0;
 }
