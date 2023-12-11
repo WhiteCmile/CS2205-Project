@@ -1,11 +1,13 @@
 #include <cstdlib>
 #include <vector>
+#include "RE.hpp"
 #include "lang.hpp"
 #include "interpreter.hpp"
 #include "basictype.hpp"
 #include "value.hpp"
 #include "symboltable.hpp"
 typedef SymbolTable Table;
+typedef unsigned long long Address;
 using std :: string;
 using std :: shared_ptr;
 using std :: vector;
@@ -125,14 +127,14 @@ ResProg * InitResProg(Cmd * c) {
     return res;
 }
 
-ValuePtr Eval(Expr * e, Table * table)
+ValuePtr Eval(Expr * e, Table * table, bool required = 1)
 {
     switch (e -> e_type)
     {
         case T_CONST:
             return ValuePtr(new Int(e -> data.CONST.val));
         case T_VAR:
-            return table -> GetValue(string(e -> data.VAR.name));
+            return table -> GetValue(string(e -> data.VAR.name), required);
         case T_BINOP:
         {
             Expr * left = e -> data.BINOP.left, * right = e -> data.BINOP.right;
@@ -189,9 +191,14 @@ ValuePtr Eval(Expr * e, Table * table)
         }
         case T_DEREF:
         {
+            ValuePtr val_ptr = Eval(e -> data.DEREF.arg, table);
+            return val_ptr -> GetVal();
         }
         case T_ADDR_OF:
         {
+            ValuePtr val = Eval(e -> data.ADDR_OF.arg, table, 0);
+            table -> CheckAddress(val.GetAddress());
+            return val.MakeAddrOf();
         }
         case T_RI:
         {
@@ -253,6 +260,26 @@ void Step(ResProg * r, Table * table)
             }
             case T_ASGN:
             {
+                Expr * left = cmd -> data.ASGN.left, * right = cmd -> data.ASGN.right;
+                ValuePtr rval = Eval(cmd -> data.ASGN.right, table);
+                switch (left -> e_type)
+                {
+                    case T_VAR:
+                    {
+                        table -> ModifyByName(string(left -> data.VAR.name), rval);
+                        break;
+                    }
+                    case T_DEREF:
+                    {
+                        ValuePtr lval = Eval(cmd -> data.ASGN.left, table);
+                        if (*(lval -> GetType()) != *(rval -> GetType()))
+                            throw RuntimeError("try to bind a variable to another value whose type is different");
+                        table -> CheckAddress(lval.GetAddress());
+                        break;
+                    }
+                }
+                r -> foc = nullptr;
+                break;
             }
             case T_SEQ:
             {
