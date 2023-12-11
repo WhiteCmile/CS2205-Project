@@ -29,6 +29,8 @@ public:
     BasicType * operator -> () const; // operator -> 
     BasicType & operator * () const; // operator *
     operator bool();
+
+    BasicType * get();
 };
 
 class BasicType

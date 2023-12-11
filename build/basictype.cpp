@@ -13,6 +13,8 @@ BasicType & BasicTypePtr :: operator * () const { return *ptr; }
 
 BasicTypePtr :: operator bool() { return ptr.get(); }
 
+BasicType * BasicTypePtr :: get() { return ptr.get(); }
+
 // BasicType
 
 BasicType :: BasicType(TypeName type_name, int num) : type_name(type_name), ptr_num(num) {}
