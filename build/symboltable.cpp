@@ -37,7 +37,7 @@ int SymbolTable::IsLegalVariable(Name name) {
                 return time_index_table[name_table[name][0]];
             throw std :: exception();
         }
-    } else throw RuntimeError("undefined variable" + name);
+    } else throw RuntimeError("undefined variable " + name);
     return -1;
 }
 
@@ -115,6 +115,36 @@ void SymbolTable::InsertItem(Name name, ValuePtr value_ptr, bool initialized) {
     return;
 }
 
+void ModifyValuePtr(ValuePtr &dest, ValuePtr res)
+{
+/*
+ * Replace value of pointer dest to the value of res
+ */
+    auto type_ptr = res -> GetType();
+    if (type_ptr -> Dim())
+        dest -> Modify(res -> GetVal());
+    else
+    {
+        switch (type_ptr -> GetTypeName())
+        {
+            case INT:
+            {
+                auto ptr1 = dynamic_cast<Int*>(dest.get());
+                auto ptr2 = dynamic_cast<Int*>(res.get());
+                ptr1 -> ChangeNum(ptr2 -> GetNum());
+                break;
+            }
+            case FUNCPTR:
+            {
+                auto ptr1 = dynamic_cast<FuncPtr*>(dest.get());
+                auto ptr2 = dynamic_cast<FuncPtr*>(res.get());
+                ptr1 -> ChangeGlobItem(ptr2 -> GetFunc());
+                break;
+            }
+        }
+    }
+}
+
 /**
  * Modify a variable by passing in its name and value.
  * 
@@ -125,7 +155,8 @@ void SymbolTable::ModifyByName(Name name, ValuePtr value_ptr) {
     int index = IsLegalVariable(name);
     if (index >= 0) {
         info_table[index].initialized = true;
-        info_table[index].value_ptr = value_ptr;
+        ModifyValuePtr(info_table[index].value_ptr, value_ptr);
+        // info_table[index].value_ptr = value_ptr;
     }
     else throw std::exception();
     return;
@@ -140,7 +171,8 @@ void SymbolTable::ModifyByName(Name name, ValuePtr value_ptr) {
 void SymbolTable::ModifyByAddress(Address address, ValuePtr value_ptr) {
     TimeElapse();
     if (address_table.find(address) != address_table.end()) {
-        info_table[address_table[address]].value_ptr = value_ptr;
+        // info_table[address_table[address]].value_ptr = value_ptr;
+        ModifyValuePtr(info_table[address_table[address]].value_ptr, value_ptr);
     } else throw std::exception();
     return;
 }
@@ -162,14 +194,14 @@ void SymbolTable::CheckAddress(Address address) {
  * 
  * If the variable is uninitialized, throw an exception.
  */
-ValuePtr SymbolTable::GetValue(Name name) {
+ValuePtr SymbolTable::GetValue(Name name, bool required) {
     TimeElapse();
     int index = IsLegalVariable(name);
     if (index >= 0) {
-        if (info_table[index].initialized == false) throw std::exception();
+        if (required && info_table[index].initialized == false) throw RuntimeError("uninitialized variable");
         else return info_table[index].value_ptr;
     }
-    throw std::exception();
+    throw RuntimeError("undefined variable");
 }
 
 /**

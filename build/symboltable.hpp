@@ -55,15 +55,15 @@ private:
 
 public:
     SymbolTable();
-    void NewFrame(FrameType frametype);
+    void NewFrame(FrameType);
     void DeleteFrame();
-    void InsertItem(Name name, ValuePtr type, bool initialized);
-    void ModifyByName(Name name, ValuePtr value);
-    void ModifyByAddress(Address address, ValuePtr value);
-    void CheckAddress(Name name);
-    ValuePtr GetValue(Name name);
-    Address GetAddress(Name name);
-    BasicTypePtr GetType(Name name);
+    void InsertItem(Name, ValuePtr, bool);
+    void ModifyByName(Name, ValuePtr);
+    void ModifyByAddress(Address, ValuePtr);
+    void CheckAddress(Address);
+    ValuePtr GetValue(Name, bool required = 1);
+    Address GetAddress(Name);
+    BasicTypePtr GetType(Name);
 };
 
 #endif
