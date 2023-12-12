@@ -31,7 +31,7 @@ CXXFLAGS := -g -std=c++11
 ./build/front.o: ./build/front.cpp ./build/lexer.hpp ./build/parser.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-./bin/front: ./build/front.o ./build/parser.o ./build/lexer.o ./build/lib.o ./build/lang.o
+./bin/front: ./build/front.o ./build/parser.o ./build/lexer.o ./build/lib.o ./build/lang.o ./build/RE.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 ./build/value.o: ./build/value.cpp ./build/value.hpp ./build/basictype.hpp ./build/lang.hpp
@@ -50,7 +50,7 @@ CXXFLAGS := -g -std=c++11
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ./bin/main: ./build/main.o ./build/RE.o ./build/lib.o ./build/lexer.o ./build/parser.o ./build/lang.o ./build/interpreter.o ./build/value.o ./build/basictype.o ./build/symboltable.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	ulimit -s unlimited && $(CXX) $(CXXFLAGS) $^ -o $@
 
 all: ./bin/main
 
