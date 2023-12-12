@@ -48,19 +48,19 @@ BasicTypePtr BasicValue :: GetType() const { return type; }
 ValuePtr BasicValue :: GetVal() const { return val; }
 void BasicValue :: Modify(ValuePtr new_val) { val = new_val; }
 
-ValuePtr BasicValue :: operator + (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator - (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator - () { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator * (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator / (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator % (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator + (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator - (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator - () { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator * (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator / (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator % (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
 
-ValuePtr BasicValue :: operator < (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator <= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator == (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator < (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator <= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator == (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
 ValuePtr BasicValue :: operator != (const BasicValue &op) { return ValuePtr(new Bool(!(*this == op))); }
-ValuePtr BasicValue :: operator >= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
-ValuePtr BasicValue :: operator > (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int"); }
+ValuePtr BasicValue :: operator >= (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
+ValuePtr BasicValue :: operator > (const BasicValue &op) { throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int"); }
 
 BasicValue :: operator bool() { throw RuntimeError("undefined error"); }
 
@@ -94,7 +94,7 @@ void CheckOperand(const BasicValue &op1)
 {
     BasicTypePtr type = op1.GetType();
     if (type -> Dim() || type -> GetTypeName() != INT) 
-        throw RuntimeError("try to apply a binary operator to two operands with at least one of it being not int");
+        throw RuntimeError("try to apply a binary operator to two operands with at least one of it not being int");
 }
 void CheckOperands(const BasicValue &op1, const BasicValue &op2)
 {
