@@ -126,7 +126,73 @@ ResProg * InitResProg(Cmd * c) {
     return res;
 }
 
-ValuePtr Eval(Expr * e, Table * table, bool required = 1)
+ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
+{
+/*
+    this function is used to make function call (including procedure call).
+*/
+    // get expressions of the function and arguments
+    Expr * func_expr = e -> data.FUNC.func; 
+    ExprList * args_expr = e -> data.FUNC.args; 
+    // eval expression of the function
+    ValuePtr func = Eval(func_expr, table);
+    vector<ValuePtr> arg_values;
+    // eval expression of arguments
+    while (args_expr)
+    {
+        arg_values.push_back(Eval(args_expr -> data, table));
+        args_expr = args_expr -> next;
+    } 
+    // get the type of this function
+    TypeFuncPtr * func_type = dynamic_cast<TypeFuncPtr*>((func -> GetType()).get());
+    // func_type need to be a FuncPtr with its dimension = 0
+    if (func_type -> GetTypeName() != FUNCPTR || func_type -> Dim())
+        throw RuntimeError("try to apply a non-procedure");
+    // check the types of arguments and parameters in order
+    GlobItem * call_func = dynamic_cast<FuncPtr*>(func.get()) -> GetFunc();
+    vector<BasicTypePtr> para_types = func_type -> GetArgTypes();
+    BasicTypePtr ret_type_ptr = func_type -> GetRetType();
+    if (para_types.size() != arg_values.size())
+        throw RuntimeError("wrong number of arguments");
+    for (auto i = 0; i < para_types.size(); i++)
+        if (*(arg_values[i] -> GetType()) != *para_types[i])
+            throw RuntimeError("argument type differs from parameter type");
+    // create frame of the function
+    table -> NewFrame(1);
+    // define __return
+    switch (ret_type_ptr -> GetTypeName())
+    {
+        case INT:
+        {
+            table -> InsertItem("__return", ValuePtr(new Int(ret_type_ptr, ValuePtr(nullptr), 0)), 0);
+            break;
+        }
+        case FUNCPTR:
+        {
+            table -> InsertItem("__return", ValuePtr(new FuncPtr(ret_type_ptr, ValuePtr(nullptr), nullptr)), 0);
+            break;
+        }
+    }
+    // bind parameters
+    VarList * args = call_func -> data.FUNC_DEF.args;
+    for (auto item : arg_values)
+    {
+        table -> InsertItem(args -> var -> name, item, 1);
+        args = args -> next;
+    }
+    // execute function body
+    ResProg * cur_func = InitResProg(call_func -> data.FUNC_DEF.body);
+    while (!TestEnd(cur_func)) Step(cur_func, table);
+    // get the return value
+    ValuePtr ret_value = ValuePtr(nullptr);
+    if (need_return)
+        ret_value = table -> GetValue("__return");
+    // delete frame
+    table -> DeleteFrame();
+    return ret_value;
+}
+
+ValuePtr Eval(Expr * e, Table * table, bool required)
 {
     switch (e -> e_type)
     {
@@ -206,53 +272,7 @@ ValuePtr Eval(Expr * e, Table * table, bool required = 1)
             return ValuePtr(new Int(val));
         }
         case T_FUNC:
-        {
-            Expr * func_expr = e -> data.FUNC.func;
-            ExprList * args_expr = e -> data.FUNC.args;
-            ValuePtr func = Eval(func_expr, table);
-            vector<ValuePtr> arg_values;
-            while (args_expr)
-            {
-                arg_values.push_back(Eval(args_expr -> data, table));
-                args_expr = args_expr -> next;
-            }
-            TypeFuncPtr * func_type = dynamic_cast<TypeFuncPtr*>((func -> GetType()).get());
-            if (func_type -> GetTypeName() != FUNCPTR || func_type -> Dim())
-                throw RuntimeError("try to apply a non-procedure");
-            GlobItem * call_func = dynamic_cast<FuncPtr*>(func.get()) -> GetFunc();
-            vector<BasicTypePtr> para_types = func_type -> GetArgTypes();
-            BasicTypePtr ret_type_ptr = func_type -> GetRetType();
-            if (para_types.size() != arg_values.size())
-                throw RuntimeError("wrong number of arguments");
-            for (auto i = 0; i < para_types.size(); i++)
-                if (*(arg_values[i] -> GetType()) != *para_types[i])
-                    throw RuntimeError("argument type differs from parameter type");
-            table -> NewFrame(1);
-            switch (ret_type_ptr -> GetTypeName())
-            {
-                case INT:
-                {
-                    table -> InsertItem("__return", ValuePtr(new Int(ret_type_ptr, ValuePtr(nullptr), 0)), 0);
-                    break;
-                }
-                case FUNCPTR:
-                {
-                    table -> InsertItem("__return", ValuePtr(new FuncPtr(ret_type_ptr, ValuePtr(nullptr), nullptr)), 0);
-                    break;
-                }
-            }
-            VarList * args = call_func -> data.FUNC_DEF.args;
-            for (auto item : arg_values)
-            {
-                table -> InsertItem(args -> var -> name, item, 1);
-                args = args -> next;
-            }
-            ResProg * cur_func = InitResProg(call_func -> data.FUNC_DEF.body);
-            while (!TestEnd(cur_func)) Step(cur_func, table);
-            ValuePtr ret_value = table -> GetValue("__return");
-            table -> DeleteFrame();
-            return ret_value;
-        }
+            return FunctionCall(e, table);
     }
 }
 
@@ -360,6 +380,11 @@ void Step(ResProg * r, Table * table)
             }
             case T_PROC:
             {
+                Expr * func_call = TFunc(cmd -> data.PROC.func, cmd -> data.PROC.args);
+                FunctionCall(func_call, table, 0);
+                delete func_call;
+                r -> foc = nullptr;
+                break;
             }
             case T_WC:
             {
@@ -391,6 +416,8 @@ void Step(ResProg * r, Table * table)
             }
             case T_RETURN:
             {
+                r -> foc = nullptr, r -> ectx = nullptr;
+                break;
             }
         }
     }
