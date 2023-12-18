@@ -165,6 +165,14 @@ Cmd * TWhile(Expr * cond, Cmd * body) {
     return res;
 }
 
+Cmd * TWhileIn(Expr * cond, Cmd * body) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_WHILE_IN;
+    res -> data.WHILE.cond = cond;
+    res -> data.WHILE.body = body;
+    return res;
+}
+
 Cmd * TFor(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
     Cmd * res = NewPtr<Cmd> ();
     res -> c_type = T_FOR;
@@ -175,9 +183,37 @@ Cmd * TFor(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
     return res;
 }
 
+Cmd * TForBody(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_FOR_BODY;
+    res -> data.FOR.init = init;
+    res -> data.FOR.cond = cond;
+    res -> data.FOR.incr = incr;
+    res -> data.FOR.body = body;
+    return res;
+}
+
+Cmd * TForIncr(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_FOR_INCR;
+    res -> data.FOR.init = init;
+    res -> data.FOR.cond = cond;
+    res -> data.FOR.incr = incr;
+    res -> data.FOR.body = body;
+    return res;
+}
+
 Cmd * TDoWhile(Cmd * body, Expr * cond) {
     Cmd * res = NewPtr<Cmd> ();
     res -> c_type = T_DO_WHILE;
+    res -> data.DO_WHILE.body = body;
+    res -> data.DO_WHILE.cond = cond;
+    return res;
+}
+
+Cmd * TDoWhileIn(Cmd * body, Expr * cond) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_DO_WHILE_IN;
     res -> data.DO_WHILE.body = body;
     res -> data.DO_WHILE.cond = cond;
     return res;

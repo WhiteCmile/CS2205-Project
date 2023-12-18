@@ -130,6 +130,7 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
 {
 /*
     this function is used to make function call (including procedure call).
+
 */
     // get expressions of the function and arguments
     Expr * func_expr = e -> data.FUNC.func; 
@@ -177,7 +178,8 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
     VarList * args = call_func -> data.FUNC_DEF.args;
     for (auto item : arg_values)
     {
-        table -> InsertItem(args -> var -> name, item, 1);
+        VarDefinition(args -> var, table);
+        table -> ModifyByName(args -> var -> name, item);
         args = args -> next;
     }
     // execute function body
@@ -290,6 +292,22 @@ ContList * KWhileCons(Cmd * data, ContList * list)
     return new_list;
 }
 
+bool TestCirc(ContList * list) {
+    if (list == nullptr) throw RuntimeError("invalid ContList");
+    switch (list -> data -> c_type)
+    {
+        case T_WHILE_IN: 
+        case T_DO_WHILE_IN:
+        case T_FOR_BODY:
+        case T_FOR_INCR: {
+            if (list -> next == nullptr) throw RuntimeError("invalid ContList");
+            if (list -> next -> data -> c_type == T_DEL_FRAME) return true;
+            break;
+        }
+    }
+    return false;
+}
+
 void Step(ResProg * r, Table * table)
 {
     if (r -> foc == nullptr)
@@ -360,10 +378,12 @@ void Step(ResProg * r, Table * table)
                 break;
             }
             case T_WHILE:
+            case T_WHILE_IN:
             {
                 if (Eval(cmd -> data.WHILE.cond, table))
                 {
                     r -> foc = cmd -> data.WHILE.body;
+                    cmd -> c_type = T_WHILE_IN;
                     r -> ectx = KWhileCons(cmd, r -> ectx);
                 }
                 else r -> foc = nullptr;
@@ -371,10 +391,20 @@ void Step(ResProg * r, Table * table)
             }
             case T_FOR:
             {
+                break;
+            }
+            case T_FOR_BODY:
+            {
+                break;
+            }
+            case T_FOR_INCR:
+            {
+                break;
             }
             case T_DO_WHILE:
+            case T_DO_WHILE_IN:
             {
-                Cmd * new_cmd = TWhile(cmd -> data.WHILE.cond, cmd -> data.WHILE.body);
+                Cmd * new_cmd = TWhileIn(cmd -> data.WHILE.cond, cmd -> data.WHILE.body);
                 r -> foc = cmd -> data.WHILE.body, r -> ectx = KWhileCons(new_cmd, r -> ectx);
                 break;
             }
@@ -410,15 +440,32 @@ void Step(ResProg * r, Table * table)
             }
             case T_BREAK:
             {
+                ContList * cl = r -> ectx;
+                while (TestCirc(cl) == false) {
+                    if (cl -> data -> c_type == T_DEL_FRAME) table -> DeleteFrame();
+                    cl = cl ->next;
+                }
+                r -> foc = nullptr;
+                r -> ectx = cl -> next;
+                break;
             }
             case T_CONTINUE:
             {
+                ContList * cl = r -> ectx;
+                while (TestCirc(cl) == false) {
+                    if (cl -> data -> c_type == T_DEL_FRAME) table -> DeleteFrame();
+                    cl = cl ->next;
+                }
+                r -> foc = nullptr;
+                r -> ectx = cl;
+                break;
             }
             case T_RETURN:
             {
                 r -> foc = nullptr, r -> ectx = nullptr;
                 break;
             }
+    
         }
     }
 }
