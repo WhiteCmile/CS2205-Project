@@ -290,6 +290,20 @@ ContList * KWhileCons(Cmd * data, ContList * list)
     return new_list;
 }
 
+ContList * KForCons(Cmd * data, ContList * list)
+{
+    ContList * new_list = new ContList;
+    new_list -> data = data, new_list -> next = list;
+    return new_list;
+}
+
+ContList * KForBody(Cmd * data, ContList * list)
+{
+    ContList * new_list = new ContList;
+    new_list -> data = data, new_list -> next = list;
+    return new_list;
+}
+
 void Step(ResProg * r, Table * table)
 {
     if (r -> foc == nullptr)
@@ -371,6 +385,40 @@ void Step(ResProg * r, Table * table)
             }
             case T_FOR:
             {
+                Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
+                r -> foc = cmd -> data.FOR.init;
+                if(r -> foc -> c_type == T_BREAK || r -> foc -> c_type == T_CONTINUE) {
+                    throw RuntimeError("wrong using of break or continue");
+                }
+                ContList * temp = r -> ectx;
+                //check if there is the "break"
+                while (temp -> data != nullptr) {
+                    if(temp -> data -> c_type == T_BREAK || temp -> data -> c_type == T_CONTINUE) {
+                        throw RuntimeError("wrong using of break or continue");
+                        break;
+                    }
+                    if(temp -> next == nullptr) break;
+                    else temp = temp -> next;
+                }
+                r -> ectx = KForCons(new_cmd, r -> ectx);
+                break;
+            }
+            case T_FORINCR:
+            {
+                if(Eval(cmd -> data.FOR.cond, table)) {
+                    Cmd * new_cmd = TForBody(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
+                    r -> foc = cmd -> data.FOR.body;
+                    r -> ectx = KForBody(new_cmd, r -> ectx);
+                }
+                else r -> foc = nullptr;
+                break;
+            }
+            case T_FORBODY:
+            {
+                Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
+                r -> foc = cmd -> data.FOR.incr;
+                r -> ectx = KForCons(new_cmd, r -> ectx);
+                break;
             }
             case T_DO_WHILE:
             {
@@ -410,9 +458,11 @@ void Step(ResProg * r, Table * table)
             }
             case T_BREAK:
             {
+
             }
             case T_CONTINUE:
             {
+
             }
             case T_RETURN:
             {

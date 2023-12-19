@@ -52,7 +52,9 @@ enum CmdType {
     T_WI,
     T_BREAK,
     T_CONTINUE,
-    T_RETURN
+    T_RETURN,
+    T_FORBODY,
+    T_FORINCR
 };
 
 enum VarType {
@@ -181,6 +183,10 @@ Cmd * TSeq(Cmd * left, Cmd * right);
 Cmd * TIf(Expr* cond, Cmd * left, Cmd * right);
 Cmd * TWhile(Expr* cond, Cmd * body);
 Cmd * TFor(Cmd * init, Expr* cond,
+                  Cmd * incr, Cmd * body);
+Cmd * TForIncr(Cmd * init, Expr* cond,
+                  Cmd * incr, Cmd * body);
+Cmd * TForBody(Cmd * init, Expr* cond,
                   Cmd * incr, Cmd * body);
 Cmd * TDoWhile(Cmd * body, Expr* cond);
 Cmd * TProc(Expr * expr, ExprList * args);

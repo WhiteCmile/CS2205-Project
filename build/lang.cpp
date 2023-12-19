@@ -165,6 +165,26 @@ Cmd * TWhile(Expr * cond, Cmd * body) {
     return res;
 }
 
+Cmd * TForBody(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_FORBODY;
+    res -> data.FOR.init = init;
+    res -> data.FOR.cond = cond;
+    res -> data.FOR.incr = incr;
+    res -> data.FOR.body = body;
+    return res;
+}
+
+Cmd * TForIncr(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
+    Cmd * res = NewPtr<Cmd> ();
+    res -> c_type = T_FORINCR;
+    res -> data.FOR.init = init;
+    res -> data.FOR.cond = cond;
+    res -> data.FOR.incr = incr;
+    res -> data.FOR.body = body;
+    return res;
+}
+
 Cmd * TFor(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
     Cmd * res = NewPtr<Cmd> ();
     res -> c_type = T_FOR;

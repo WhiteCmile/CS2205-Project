@@ -1,0 +1,16 @@
+int main()
+{
+    int y;
+    y = 0;
+    int x;
+    x = 1;
+    for
+    {int i; i = 0}
+    (i <= 3)
+    { i = i + 1 }
+    {
+        y = y + x + 1;
+        x = x + 1
+    };
+    write_int(y)
+}
