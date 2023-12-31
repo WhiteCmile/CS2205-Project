@@ -130,6 +130,7 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
 {
 /*
     this function is used to make function call (including procedure call).
+
 */
     // get expressions of the function and arguments
     Expr * func_expr = e -> data.FUNC.func; 
@@ -177,7 +178,8 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
     VarList * args = call_func -> data.FUNC_DEF.args;
     for (auto item : arg_values)
     {
-        table -> InsertItem(args -> var -> name, item, 1);
+        VarDefinition(args -> var, table);
+        table -> ModifyByName(args -> var -> name, item);
         args = args -> next;
     }
     // execute function body
