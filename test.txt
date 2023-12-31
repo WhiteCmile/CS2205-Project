@@ -9,8 +9,16 @@ int main()
     (i <= 3)
     { i = i + 1 }
     {
-        y = y + x + 1;
-        x = x + 1
+        for
+        {int j; j = 0}
+        (j < 2)
+        {j = j + 1}
+        {
+            y = y + x + 1;
+            x = x + 1;
+            write_int(y);
+            write_int(x)
+        }
     };
     write_int(y)
 }
