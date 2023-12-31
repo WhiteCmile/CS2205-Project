@@ -45,8 +45,10 @@ enum CmdType {
     T_SEQ,
     T_IF,
     T_WHILE,
+    T_WHILE_IN,
     T_FOR,
     T_DO_WHILE,
+    T_DO_WHILE_IN,
     T_PROC,
     T_WC,
     T_WI,
@@ -54,7 +56,9 @@ enum CmdType {
     T_CONTINUE,
     T_RETURN,
     T_FORBODY,
-    T_FORINCR
+    T_FORINCR,
+    T_FOR_BODY,
+    T_FOR_INCR
 };
 
 enum VarType {
@@ -182,13 +186,15 @@ Cmd * TAsgn(Expr* left, Expr* right);
 Cmd * TSeq(Cmd * left, Cmd * right);
 Cmd * TIf(Expr* cond, Cmd * left, Cmd * right);
 Cmd * TWhile(Expr* cond, Cmd * body);
+Cmd * TWhileIn(Expr* cond, Cmd * body);
 Cmd * TFor(Cmd * init, Expr* cond,
-                  Cmd * incr, Cmd * body);
-Cmd * TForIncr(Cmd * init, Expr* cond,
                   Cmd * incr, Cmd * body);
 Cmd * TForBody(Cmd * init, Expr* cond,
                   Cmd * incr, Cmd * body);
+Cmd * TForIncr(Cmd * init, Expr* cond,
+                  Cmd * incr, Cmd * body);
 Cmd * TDoWhile(Cmd * body, Expr* cond);
+Cmd * TDoWhileIn(Cmd * body, Expr* cond);
 Cmd * TProc(Expr * expr, ExprList * args);
 Cmd * TLocalDecl(char * name, Cmd * body);
 Cmd * TWriteChar(Expr * expr);

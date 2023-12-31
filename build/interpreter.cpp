@@ -292,6 +292,7 @@ ContList * KWhileCons(Cmd * data, ContList * list)
     return new_list;
 }
 
+<<<<<<< HEAD
 ContList * KForCons(Cmd * data, ContList * list)
 {
     ContList * new_list = new ContList;
@@ -304,6 +305,22 @@ ContList * KForBody(Cmd * data, ContList * list)
     ContList * new_list = new ContList;
     new_list -> data = data, new_list -> next = list;
     return new_list;
+=======
+bool TestCirc(ContList * list) {
+    if (list == nullptr) throw RuntimeError("invalid ContList");
+    switch (list -> data -> c_type)
+    {
+        case T_WHILE_IN: 
+        case T_DO_WHILE_IN:
+        case T_FOR_BODY:
+        case T_FOR_INCR: {
+            if (list -> next == nullptr) throw RuntimeError("invalid ContList");
+            if (list -> next -> data -> c_type == T_DEL_FRAME) return true;
+            break;
+        }
+    }
+    return false;
+>>>>>>> dev3
 }
 
 void Step(ResProg * r, Table * table)
@@ -376,10 +393,12 @@ void Step(ResProg * r, Table * table)
                 break;
             }
             case T_WHILE:
+            case T_WHILE_IN:
             {
                 if (Eval(cmd -> data.WHILE.cond, table))
                 {
                     r -> foc = cmd -> data.WHILE.body;
+                    cmd -> c_type = T_WHILE_IN;
                     r -> ectx = KWhileCons(cmd, r -> ectx);
                 }
                 else r -> foc = nullptr;
@@ -387,6 +406,7 @@ void Step(ResProg * r, Table * table)
             }
             case T_FOR:
             {
+<<<<<<< HEAD
                 Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
                 r -> foc = cmd -> data.FOR.init;
                 if(r -> foc -> c_type == T_BREAK || r -> foc -> c_type == T_CONTINUE) {
@@ -420,11 +440,22 @@ void Step(ResProg * r, Table * table)
                 Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
                 r -> foc = cmd -> data.FOR.incr;
                 r -> ectx = KForCons(new_cmd, r -> ectx);
+=======
+                break;
+            }
+            case T_FOR_BODY:
+            {
+                break;
+            }
+            case T_FOR_INCR:
+            {
+>>>>>>> dev3
                 break;
             }
             case T_DO_WHILE:
+            case T_DO_WHILE_IN:
             {
-                Cmd * new_cmd = TWhile(cmd -> data.WHILE.cond, cmd -> data.WHILE.body);
+                Cmd * new_cmd = TWhileIn(cmd -> data.WHILE.cond, cmd -> data.WHILE.body);
                 r -> foc = cmd -> data.WHILE.body, r -> ectx = KWhileCons(new_cmd, r -> ectx);
                 break;
             }
@@ -460,17 +491,40 @@ void Step(ResProg * r, Table * table)
             }
             case T_BREAK:
             {
+<<<<<<< HEAD
 
             }
             case T_CONTINUE:
             {
 
+=======
+                ContList * cl = r -> ectx;
+                while (TestCirc(cl) == false) {
+                    if (cl -> data -> c_type == T_DEL_FRAME) table -> DeleteFrame();
+                    cl = cl ->next;
+                }
+                r -> foc = nullptr;
+                r -> ectx = cl -> next;
+                break;
+            }
+            case T_CONTINUE:
+            {
+                ContList * cl = r -> ectx;
+                while (TestCirc(cl) == false) {
+                    if (cl -> data -> c_type == T_DEL_FRAME) table -> DeleteFrame();
+                    cl = cl ->next;
+                }
+                r -> foc = nullptr;
+                r -> ectx = cl;
+                break;
+>>>>>>> dev3
             }
             case T_RETURN:
             {
                 r -> foc = nullptr, r -> ectx = nullptr;
                 break;
             }
+    
         }
     }
 }
