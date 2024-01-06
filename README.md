@@ -223,6 +223,13 @@ P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 – (read_int(), ϵ) -> (n,KUnOp(&)) @ s
 ```
 
+- 赋值语句的小步语义：
+```
+- (x = e, ϵ, s) -> (e, KAsgnVar(x), s)
+- (e, KAsgnVar(x), s) -> (n, KAsgnVar(x), s)
+- (n, KAsgnVar(x), s) -> (ϵ, ϵ, s')
+其中 s'(x) = n, 对于 y != x, s'(y) = s(y)
+```
 
 二、程序语句相关的小步语义
 - 顺序语句：
@@ -266,8 +273,8 @@ P :=    GLOB_ITEM ; GLOB_ITEM ; ... ; GLOB_ITEM
 
 - 函数调用：
 ```
-(V(e, e, ..., e),ϵ,s) -> (NewFrame(), Func(V(e,e,...,e)) \circ DeleteFrame()) -> (KFunc(V,e,e,...,e),ϵ,s)
-(KFunc(V,e,e,...,e),ϵ,s) -> 逐个求值(ϵ,KFuncBody(V,n1,n2,...,nk),s)
+(E(e, e, ..., e),ϵ,s) -> (NewFrame(), Func(E(e,e,...,e)) \circ DeleteFrame()) -> (KFunc(E,e,e,...,e),ϵ,s)
+(KFunc(E,e,e,...,e),ϵ,s) -> 逐个求值(ϵ,KFuncBody(E,n1,n2,...,nk),s)
 ```
 
 - 写值：
