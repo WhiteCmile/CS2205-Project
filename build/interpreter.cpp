@@ -292,7 +292,6 @@ ContList * KWhileCons(Cmd * data, ContList * list)
     return new_list;
 }
 
-<<<<<<< HEAD
 ContList * KForCons(Cmd * data, ContList * list)
 {
     ContList * new_list = new ContList;
@@ -305,7 +304,8 @@ ContList * KForBody(Cmd * data, ContList * list)
     ContList * new_list = new ContList;
     new_list -> data = data, new_list -> next = list;
     return new_list;
-=======
+}
+
 bool TestCirc(ContList * list) {
     if (list == nullptr) throw RuntimeError("invalid ContList");
     switch (list -> data -> c_type)
@@ -320,7 +320,6 @@ bool TestCirc(ContList * list) {
         }
     }
     return false;
->>>>>>> dev3
 }
 
 void Step(ResProg * r, Table * table)
@@ -406,7 +405,6 @@ void Step(ResProg * r, Table * table)
             }
             case T_FOR:
             {
-<<<<<<< HEAD
                 Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
                 r -> foc = cmd -> data.FOR.init;
                 if(r -> foc -> c_type == T_BREAK || r -> foc -> c_type == T_CONTINUE) {
@@ -440,16 +438,6 @@ void Step(ResProg * r, Table * table)
                 Cmd * new_cmd = TForIncr(cmd -> data.FOR.init, cmd -> data.FOR.cond, cmd -> data.FOR.incr, cmd -> data.FOR.body);
                 r -> foc = cmd -> data.FOR.incr;
                 r -> ectx = KForCons(new_cmd, r -> ectx);
-=======
-                break;
-            }
-            case T_FOR_BODY:
-            {
-                break;
-            }
-            case T_FOR_INCR:
-            {
->>>>>>> dev3
                 break;
             }
             case T_DO_WHILE:
@@ -491,13 +479,6 @@ void Step(ResProg * r, Table * table)
             }
             case T_BREAK:
             {
-<<<<<<< HEAD
-
-            }
-            case T_CONTINUE:
-            {
-
-=======
                 ContList * cl = r -> ectx;
                 while (TestCirc(cl) == false) {
                     if (cl -> data -> c_type == T_DEL_FRAME) table -> DeleteFrame();
@@ -517,7 +498,6 @@ void Step(ResProg * r, Table * table)
                 r -> foc = nullptr;
                 r -> ectx = cl;
                 break;
->>>>>>> dev3
             }
             case T_RETURN:
             {
