@@ -185,7 +185,7 @@ Cmd * TWhileIn(Expr * cond, Cmd * body) {
 
 Cmd * TForBody(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
     Cmd * res = NewPtr<Cmd> ();
-    res -> c_type = T_FOR_BODY;
+    res -> c_type = T_FORBODY;
     res -> data.FOR.init = init;
     res -> data.FOR.cond = cond;
     res -> data.FOR.incr = incr;
@@ -195,7 +195,7 @@ Cmd * TForBody(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
 
 Cmd * TForIncr(Cmd * init, Expr * cond, Cmd * incr, Cmd * body) {
     Cmd * res = NewPtr<Cmd> ();
-    res -> c_type = T_FOR_INCR;
+    res -> c_type = T_FORINCR;
     res -> data.FOR.init = init;
     res -> data.FOR.cond = cond;
     res -> data.FOR.incr = incr;
