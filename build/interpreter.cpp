@@ -147,7 +147,7 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
     // get the type of this function
     TypeFuncPtr * func_type = dynamic_cast<TypeFuncPtr*>((func -> GetType()).get());
     // func_type need to be a FuncPtr with its dimension = 0
-    if (func_type -> GetTypeName() != FUNCPTR || func_type -> Dim())
+    if (!func_type || func_type -> Dim())
         throw RuntimeError("try to apply a non-procedure");
     // check the types of arguments and parameters in order
     GlobItem * call_func = dynamic_cast<FuncPtr*>(func.get()) -> GetFunc();
@@ -259,7 +259,18 @@ ValuePtr Eval(Expr * e, Table * table, bool required)
         case T_DEREF:
         {
             ValuePtr val_ptr = Eval(e -> data.DEREF.arg, table);
-            return val_ptr -> GetVal();
+            val_ptr = val_ptr -> GetVal();
+            auto int_ptr = dynamic_cast<Int*>(val_ptr.get());
+            if (int_ptr)
+            {
+                auto type_ptr = int_ptr -> GetType();
+                if (!(type_ptr -> Dim()))
+                {
+                    long long num = int_ptr -> GetNum();
+                    return ValuePtr(new Int(num));
+                }
+            }
+            return val_ptr; 
         }
         case T_ADDR_OF:
         {
@@ -373,6 +384,10 @@ void Step(ResProg * r, Table * table)
                         table -> CheckAddress(lval.GetAddress());
                         table -> ModifyByAddress(lval.GetAddress(), rval);
                         break;
+                    }
+                    default:
+                    {
+                        throw RuntimeError("invalid left value");
                     }
                 }
                 r -> foc = nullptr;
