@@ -194,7 +194,7 @@ ValuePtr FunctionCall(Expr * e, Table * table, bool need_return = 1)
     return ret_value;
 }
 
-ValuePtr Eval(Expr * e, Table * table, bool required)
+ValuePtr Eval(Expr * e, Table * table, bool required, bool is_lvalue)
 {
     switch (e -> e_type)
     {
@@ -261,7 +261,7 @@ ValuePtr Eval(Expr * e, Table * table, bool required)
             ValuePtr val_ptr = Eval(e -> data.DEREF.arg, table);
             val_ptr = val_ptr -> GetVal();
             auto int_ptr = dynamic_cast<Int*>(val_ptr.get());
-            if (int_ptr)
+            if (!is_lvalue && int_ptr)
             {
                 auto type_ptr = int_ptr -> GetType();
                 if (!(type_ptr -> Dim()))
@@ -378,7 +378,7 @@ void Step(ResProg * r, Table * table)
                     }
                     case T_DEREF:
                     {
-                        ValuePtr lval = Eval(cmd -> data.ASGN.left, table);
+                        ValuePtr lval = Eval(cmd -> data.ASGN.left, table, 1, 1);
                         if (*(lval -> GetType()) != *(rval -> GetType()))
                             throw RuntimeError("try to bind a variable to another value whose type is different");
                         table -> CheckAddress(lval.GetAddress());

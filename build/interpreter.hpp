@@ -8,7 +8,7 @@
 struct ResProg;
 ResProg * InitResProg(Cmd *);
 void PreProcess(GlobItemList *, SymbolTable *);
-ValuePtr Eval(Expr *, SymbolTable *, bool required = 1);
+ValuePtr Eval(Expr *, SymbolTable *, bool required = 1, bool is_lvalue = 0);
 void Step(ResProg *, SymbolTable *);
 int TestEnd(ResProg *);
 
