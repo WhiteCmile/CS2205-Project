@@ -4,19 +4,22 @@ int* g(int* x)
     return
 };
 
+int*** f(int** x)
+{
+    __return = &x;
+    return
+};
+
 int main()
 {
     int t;
-    t = 1;
-    if (x > 1)
-    then {
-        int x;
-        x = 2
-    }
-    else {
-        int t;
-        t = 3
-    };
+    int x;
+    int *z;
+    int **w;
+    x = 1;
+    z = &x;
+    w = &z;
+    t = ***f(w);
     write_int(*z);
     write_char(10);
     int* (*f)(int*)
