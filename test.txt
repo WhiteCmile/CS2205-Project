@@ -19,8 +19,8 @@ int main()
     x = 1;
     z = &x;
     w = &z;
-    t = ***f(w);
-    write_int(*z);
+    t = 114514 * ***f(w) + 10;
+    write_int(t);
     write_char(10);
     int* (*f)(int*)
 }
