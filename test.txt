@@ -22,8 +22,11 @@ int main()
     int x;
     int *z;
     int **w;
-    x = 1;
     z = &x;
+    w = &z;
+    **w = 1;
+    write_int(x);
+    write_char(10);
     w = &z;
     t = 114514 * ***f(w) + 10;
     t = 114514 * *(*h(z))(z) + 200;

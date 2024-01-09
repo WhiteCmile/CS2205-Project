@@ -176,6 +176,7 @@ void SymbolTable::ModifyByAddress(Address address, ValuePtr value_ptr) {
     if (address_table.find(address) != address_table.end()) {
         // info_table[address_table[address]].value_ptr = value_ptr;
         ModifyValuePtr(info_table[address_table[address]].value_ptr, value_ptr);
+        info_table[address_table[address]].initialized = true;
     } else throw std::exception();
     return;
 }
