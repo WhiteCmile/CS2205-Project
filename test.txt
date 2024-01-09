@@ -10,6 +10,12 @@ int*** f(int** x)
     return
 };
 
+int*(*)(int*) h(int *x)
+{
+    __return = &g;
+    return
+};
+
 int main()
 {
     int t;
@@ -20,6 +26,7 @@ int main()
     z = &x;
     w = &z;
     t = 114514 * ***f(w) + 10;
+    t = 114514 * *(*h(z))(z) + 200;
     write_int(t);
     write_char(10);
     int* (*f)(int*)
