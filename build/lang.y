@@ -262,7 +262,7 @@ NT_EXPR_U:
     {
         $$ = (TUnOp(T_UMINUS, $2));
     }
-    |   TM_MUL NT_EXPR_U
+    |   TM_MUL NT_EXPR
     {
         $$ = (TDeref($2));
     }
