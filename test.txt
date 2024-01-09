@@ -1,46 +1,29 @@
-int f(int x)
+int *g(int *x)
 {
-    if (x == 1)
-    then
-    {
-        __return = 1
-    }
-    else
-    {
-        __return= f(x - 1) * x
-    };
+    __return = x;
     return
 };
 
-int g(int x)
+int num(int x)
 {
-    __return = x * x;
-    return
-};
-
-void h(int x)
-{
-    if (x == 1)
-    then
-    {
-        return
-    }
-    else
-    {
-        __return = h(x - 1)
-    };
+    int y;
+    x = 114514;
+    __return = x;
     return
 };
 
 int main()
 {
     int t;
-    t = f(g(2)) + g(f(2));
     int x;
     int *z;
     z = &x;
     *z = 1;
-    write_int(t);
+    int* (*f)(int *);
+    f = &g;
+    t = *(*f)(z);
+    write_int(num(10));
     write_char(10);
-    h(1)
+    write_int(t);
+    write_char(10)
 }
