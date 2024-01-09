@@ -155,6 +155,9 @@ void SymbolTable::ModifyByName(Name name, ValuePtr value_ptr) {
     int index = IsLegalVariable(name);
     if (index >= 0) {
         info_table[index].initialized = true;
+        auto lvalue_ptr = info_table[index].value_ptr;
+        if (*(lvalue_ptr -> GetType()) != *(value_ptr -> GetType()))
+            throw RuntimeError("try to bind a variable to another value whose type is different");
         ModifyValuePtr(info_table[index].value_ptr, value_ptr);
         // info_table[index].value_ptr = value_ptr;
     }
