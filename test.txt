@@ -8,10 +8,6 @@ int main()
 {
     int t;
     t = 1;
-    int x;
-    int *z;
-    z = &x;
-    *z = 1;
     if (x > 1)
     then {
         int x;
