@@ -278,6 +278,14 @@ NT_EXPR_U:
     {
         $$ = (TReadInt());
     }
+    |   NT_EXPR_U TM_LEFT_PAREN TM_RIGHT_PAREN
+    {
+        $$ = (TFunc($1, TENil()));
+    }
+    |   NT_EXPR_U TM_LEFT_PAREN NT_EXPR_LST TM_RIGHT_PAREN
+    {
+        $$ = (TFunc($1, $3));
+    }
 ;
 
 NT_EXPR:
@@ -336,14 +344,6 @@ NT_EXPR:
     |   NT_EXPR TM_OR NT_EXPR
     {
         $$ = (TBinOp(T_OR, $1, $3));
-    }
-    |   NT_EXPR TM_LEFT_PAREN TM_RIGHT_PAREN
-    {
-        $$ = (TFunc($1, TENil()));
-    }
-    |   NT_EXPR TM_LEFT_PAREN NT_EXPR_LST TM_RIGHT_PAREN
-    {
-        $$ = (TFunc($1, $3));
     }
 ;
 
