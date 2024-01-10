@@ -325,8 +325,8 @@ bool TestCirc(ContList * list) {
     {
         case T_WHILE_IN: 
         case T_DO_WHILE_IN:
-        case T_FOR_BODY:
-        case T_FOR_INCR: {
+        case T_FORBODY:
+        case T_FORINCR: {
             if (list -> next == nullptr) throw RuntimeError("invalid ContList");
             if (list -> next -> data -> c_type == T_DEL_FRAME) return true;
             break;
