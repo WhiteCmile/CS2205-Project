@@ -259,6 +259,8 @@ ValuePtr Eval(Expr * e, Table * table, bool required, bool is_lvalue)
         case T_DEREF:
         {
             ValuePtr val_ptr = Eval(e -> data.DEREF.arg, table);
+            if (!(val_ptr -> GetType() -> Dim()))
+                throw RuntimeError("dereference of a non-pointer value");
             val_ptr = val_ptr -> GetVal();
             auto int_ptr = dynamic_cast<Int*>(val_ptr.get());
             if (!is_lvalue && int_ptr)
