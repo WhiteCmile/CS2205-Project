@@ -2,5 +2,26 @@ int main()
 {
     int x;
     x = 1;
-    1 = **x
+    for { x = 10 } (x <= 20) { x = x + 1 }
+    {
+        if (x == 15)
+        then 
+        {
+            continue
+        }
+        else
+        {
+            if (x > 15)
+            then 
+            {
+                break
+            }
+            else
+            {
+                int i
+            }
+        };
+        write_int(x);
+        write_char(10)
+    }
 }
