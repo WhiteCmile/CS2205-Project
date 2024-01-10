@@ -1,0 +1,11 @@
+int main()
+{
+    int t;
+    int x;
+    int *z;
+    z = &x;
+    *z = 1;
+    *(&t) = 10;
+    write_int(t);
+    write_char(10)
+}

@@ -1,0 +1,19 @@
+int* g(int* x)
+{
+    __return = x;
+    return
+};
+
+int main()
+{
+    int t;
+    int x;
+    int *z;
+    z = &x;
+    *z = 1;
+    t = *g(z);
+    write_int(t);
+    write_char(10);
+    write_int(x);
+    write_char(10)
+}

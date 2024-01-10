@@ -1,0 +1,54 @@
+int* g(int *x)
+{
+    __return = x;
+    return
+};
+
+int fact(int n)
+{
+    if (n == 1)
+    then
+    {
+        __return = 1
+    }
+    else
+    {
+        __return = n * fact(n - 1)
+    };
+    return
+};
+
+int num(int x)
+{
+    __return = fact(x);
+    return
+};
+
+int main()
+{
+    int t;
+    t = 1;
+    int x;
+    int *z;
+    z = &x;
+    *z = 1;
+    for { x = 1 } (x <= 10) { x = x + 1 }
+    { 
+        int x; 
+        x = *z + 1; 
+        write_int(*z);
+        write_char(10);
+        *z = *z + x;
+        write_int(*z);
+        write_char(10)
+    };
+    write_int(*z);
+    write_char(10);
+    int* (*f)(int *);
+    f = &g;
+    t = *(*f)(z);
+    write_int(num(5));
+    write_char(10);
+    write_int(t);
+    write_char(10)
+}
